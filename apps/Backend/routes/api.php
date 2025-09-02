@@ -3,18 +3,21 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 
 use App\Http\Controllers\TestController;
 Route::get('/hello', function () {
     return response()->json(['message' => 'hello']);
 });
-Route::get('/', function () {
-    return response()->json(['message' => '////////////////////']);
-});
 
 Route::post("register", [AuthController::class, "register"]);
 Route::post("login", [AuthController::class, "login"]);
 
+Route::get("/index", [ProductController::class, "index"]);
+
+// ใน group คือพวกที่ต้อง login แล้วเท่านั้น
+// ถ้าใครจะทดสอบ api ใน postman ให้ลองข้างนอก
+// หรือ api ที่ใช้งานตอนยังไม่ได้ login ให้ใส่ข้างนอกหมดเลย เหมือน /hello register login ข้างบน
 Route::group([
     "middleware" => ["auth:sanctum"]
 ], function(){
