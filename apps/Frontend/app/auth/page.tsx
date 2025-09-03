@@ -1,10 +1,106 @@
 "use client";
 
-import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
-function Page() {
-  return <div></div>;
+interface formData {
+  name?: string;
+  email: string;
+  password: string;
+  password_confirmation?: string;
 }
 
-export default Page;
+const Auth: React.FC = () => {
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [formData, setFormData] = useState<formData>({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+  });
+
+  const handleOnChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (isLogin) {
+      alert("Login Submitted");
+    } else {
+      alert("Register Submitted");
+    }
+  };
+
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h3 className="text-2xl font-semibold text-center mb-6">
+          {isLogin ? "Login" : "Register"}
+        </h3>
+        <form onSubmit={handleFormSubmit}>
+          {!isLogin && (
+            <input
+              className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleOnChangeInput}
+              placeholder="Name"
+              required
+            />
+          )}
+          <input
+            className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleOnChangeInput}
+            placeholder="Email"
+            required
+          />
+          <input
+            className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleOnChangeInput}
+            placeholder="Password"
+            required
+          />
+          {!isLogin && (
+            <input
+              className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+              name="password_confirmation"
+              type="password"
+              value={formData.password_confirmation}
+              onChange={handleOnChangeInput}
+              placeholder="Confirm Password"
+              required
+            />
+          )}
+          <button
+            className="w-full bg-blue-500 text-white py-3 rounded-md hover:bg-blue-600"
+            type="submit"
+          >
+            Login
+          </button>
+        </form>
+        <p className="mt-3 text-center text-sm text-gray-600">
+          {isLogin ? "Don't have an account ? " : "Already have an account ? "}
+          <span
+            className="hover:cursor-pointer"
+            onClick={() => setIsLogin(!isLogin)}
+          >
+            {isLogin ? "Register" : "Login"}
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Auth;

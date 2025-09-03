@@ -5,7 +5,7 @@ const Navbar = () => {
     <nav className="bg-blue-600 text-white">
       <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
         <Link className="text-2xl font-bold" href="/">
-          This is Navbar for normal user
+          Navbar for normal user
         </Link>
 
         {/* Toggle Button for mobile */}
