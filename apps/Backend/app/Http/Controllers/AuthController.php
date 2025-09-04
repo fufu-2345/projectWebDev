@@ -9,14 +9,17 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     //Register API
-    public function register(){
+    public function register(Request $request){
         $data = $request->validate([
             "name" => "required|string",
-            "email" => "required|email|unique:customer,customer_email",
-            "password" => "required"
+            "email" => "required|email|unique:users,email",
+            "password" => "required|confirmed"
         ]);
 
+        // password confirmation
+
         User::create($data);
+
         return response()->json([
             "status" => true,
             "message" => "User registered successfully"
@@ -24,7 +27,7 @@ class AuthController extends Controller
     }
 
     //Login API
-    public function login(){
+    public function login(Request $request){
         $request->validate([
             "email" => "required|email",
             "password" => "required"
@@ -38,7 +41,8 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-        $user->createToken("myToken")->plainTextToken;
+        //$user->createToken("myToken")->plainTextToken;
+        $token = $user->createToken("myToken")->plainTextToken;
 
         return response()->json([
             "status" => true,

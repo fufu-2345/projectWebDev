@@ -2,8 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { myAppHook } from "@/context/AppProvider";
+import { useRouter } from "next/navigation";
 
 const Dashboard: React.FC = () => {
+  const { isLoading, authToken } = myAppHook();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authToken) {
+      router.push("/auth");
+      return;
+    }
+  }, [authToken]);
+
   return (
     <>
       <div className="container mx-auto mt-4">

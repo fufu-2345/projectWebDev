@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { myAppHook } from "@/context/AppProvider";
+import { useRouter } from "next/navigation";
 
 interface formData {
   name?: string;
@@ -18,6 +20,15 @@ const Auth: React.FC = () => {
     password_confirmation: "",
   });
 
+  const router = useRouter();
+  const { login, register, authToken, isLoading } = myAppHook();
+
+  useEffect(() => {
+    if (authToken) {
+      router.push("/dashboard");
+    }
+  }, [authToken, isLoading]);
+
   const handleOnChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -25,13 +36,26 @@ const Auth: React.FC = () => {
     });
   };
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (isLogin) {
-      alert("Login Submitted");
+      try {
+        await login(formData.email, formData.password);
+      } catch (error) {
+        console.log(`Authentication Error ${error}`);
+      }
     } else {
-      alert("Register Submitted");
+      try {
+        await register(
+          formData.name!,
+          formData.email,
+          formData.password,
+          formData.password_confirmation!
+        );
+      } catch (error) {
+        console.log(`Authentication Error ${error}`);
+      }
     }
   };
 
@@ -86,7 +110,7 @@ const Auth: React.FC = () => {
             className="w-full bg-blue-500 text-white py-3 rounded-md hover:bg-blue-600"
             type="submit"
           >
-            Login
+            {isLogin ? "Login" : "Register"}
           </button>
         </form>
         <p className="mt-3 text-center text-sm text-gray-600">
