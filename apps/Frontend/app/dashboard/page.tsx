@@ -5,9 +5,25 @@ import Image from "next/image";
 import { myAppHook } from "@/context/AppProvider";
 import { useRouter } from "next/navigation";
 
+interface ProductType {
+  title: string;
+  description: string;
+  cost: number;
+  file: File | null;
+  bannerURL: string | "";
+}
+
 const Dashboard: React.FC = () => {
   const { isLoading, authToken } = myAppHook();
   const router = useRouter();
+  const fileRef = React.useRef<HTMLInputElement>(null);
+  const [formData, setFormDate] = useState<ProductType>({
+    title: "",
+    description: "",
+    cost: 0,
+    file: null,
+    bannerURL: "",
+  });
 
   useEffect(() => {
     if (!authToken) {
@@ -16,6 +32,26 @@ const Dashboard: React.FC = () => {
     }
   }, [authToken]);
 
+  const handleOnChangeEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setFormDate({
+        ...formData,
+        file: event.target.files[0],
+        bannerURL: URL.createObjectURL(event.target.files[0]),
+      });
+    } else {
+      setFormDate({
+        ...formData,
+        [event.target.name]: event.target.value,
+      });
+    }
+  };
+
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log(formData);
+  };
+
   return (
     <>
       <div className="container mx-auto mt-4">
@@ -23,17 +59,21 @@ const Dashboard: React.FC = () => {
           {/* Add Product Section */}
           <div className="card p-4 border border-gray-200 rounded-lg shadow-md">
             <h4 className="text-xl font-semibold mb-4">Add Product</h4>
-            <form>
+            <form onSubmit={handleFormSubmit}>
               <input
                 className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
                 name="title"
                 placeholder="Title"
+                value={formData.title}
+                onChange={handleOnChangeEvent}
                 required
               />
               <input
                 className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
                 name="description"
                 placeholder="Description"
+                value={formData.description}
+                onChange={handleOnChangeEvent}
                 required
               />
               <input
@@ -41,22 +81,27 @@ const Dashboard: React.FC = () => {
                 name="cost"
                 placeholder="Cost"
                 type="number"
+                value={formData.cost}
+                onChange={handleOnChangeEvent}
                 required
               />
-              <div className="mb-4">
-                {/* Image preview section */}
-                {/* <Image
-                  src="#"
-                  alt="Preview"
-                  id="bannerPreview"
-                  width={100}
-                  height={100}
-                  style={{ display: "none" }}
-                /> */}
+              <div className="mb-2">
+                {formData.bannerURL && (
+                  <Image
+                    src={formData.bannerURL}
+                    alt="Preview"
+                    id="bannerPreview"
+                    width={100}
+                    height={100}
+                    style={{ display: "none" }}
+                  />
+                )}
               </div>
               <input
                 className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
                 type="file"
+                ref={fileRef}
+                onChange={handleOnChangeEvent}
                 id="bannerInput"
               />
               <button

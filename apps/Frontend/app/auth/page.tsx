@@ -26,6 +26,7 @@ const Auth: React.FC = () => {
   useEffect(() => {
     if (authToken) {
       router.push("/dashboard");
+      return;
     }
   }, [authToken, isLoading]);
 

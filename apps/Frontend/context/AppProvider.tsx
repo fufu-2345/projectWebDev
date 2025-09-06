@@ -17,6 +17,7 @@ interface AppProviderType {
     password: string,
     password_confirmation: string
   ) => Promise<void>;
+  logout: () => void;
 }
 
 const AppContext = createContext<AppProviderType | undefined>(undefined);
@@ -83,8 +84,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const logout = () => {
+    setAuthToken(null);
+    Cookies.remove("authToken");
+    setIsLoading(false);
+    toast.success("User logged out");
+    router.push("/auth");
+  };
+
   return (
-    <AppContext.Provider value={{ login, register, isLoading, authToken }}>
+    <AppContext.Provider
+      value={{ login, register, isLoading, authToken, logout }}
+    >
       {isLoading ? <Loader /> : children}
     </AppContext.Provider>
   );

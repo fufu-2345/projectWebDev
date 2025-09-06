@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { myAppHook } from "@/context/AppProvider";
 
 const Navbar = () => {
+  const { logout, authToken } = myAppHook();
+
   return (
     <nav className="bg-blue-600 text-white">
       <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
@@ -22,29 +27,39 @@ const Navbar = () => {
         {/* Navbar links */}
         <div className="hidden lg:flex space-x-6">
           <ul className="flex space-x-6">
-            <li>
-              <Link
-                className="text-white hover:text-gray-300"
-                href="/dashboard"
-              >
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
-                Logout
-              </button>
-            </li>
-            <li>
-              <Link className="text-white hover:text-gray-300" href="/">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link className="text-white hover:text-gray-300" href="/auth">
-                Login
-              </Link>
-            </li>
+            {authToken ? (
+              <>
+                <li>
+                  <Link
+                    className="text-white hover:text-gray-300"
+                    href="/dashboard"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                    onClick={logout}
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link className="text-white hover:text-gray-300" href="/">
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link className="text-white hover:text-gray-300" href="/auth">
+                    Login
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>
