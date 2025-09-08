@@ -13,17 +13,16 @@ Route::get('/hello', function () {
 Route::post("register", [AuthController::class, "register"]);
 Route::post("login", [AuthController::class, "login"]);
 
-Route::get("/index", [ProductController::class, "index"]);
-
 // ใน group คือพวกที่ต้อง login แล้วเท่านั้น
 // ถ้าใครจะทดสอบ api ใน postman ให้ลองข้างนอก
 // หรือ api ที่ใช้งานตอนยังไม่ได้ login ให้ใส่ข้างนอกหมดเลย เหมือน /hello register login ข้างบน
 Route::group([
     "middleware" => ["auth:sanctum"]
 ], function(){
-
     Route::get("profile", [AuthController::class, "profile"]);
     Route::get("logout", [AuthController::class, "logout"]);
+
+    Route::apiResource("products", ProductController::class);
 });
 
 

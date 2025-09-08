@@ -4,13 +4,16 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { myAppHook } from "@/context/AppProvider";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 interface ProductType {
   title: string;
   description: string;
   cost: number;
   file: File | null;
-  bannerURL: string | "";
+  banner_image: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -22,7 +25,7 @@ const Dashboard: React.FC = () => {
     description: "",
     cost: 0,
     file: null,
-    bannerURL: "",
+    banner_image: "",
   });
 
   useEffect(() => {
@@ -37,7 +40,7 @@ const Dashboard: React.FC = () => {
       setFormDate({
         ...formData,
         file: event.target.files[0],
-        bannerURL: URL.createObjectURL(event.target.files[0]),
+        banner_image: URL.createObjectURL(event.target.files[0]),
       });
     } else {
       setFormDate({
@@ -47,9 +50,24 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(formData);
+    try {
+      console.log(formData);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/products`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -86,9 +104,9 @@ const Dashboard: React.FC = () => {
                 required
               />
               <div className="mb-2">
-                {formData.bannerURL && (
+                {formData.banner_image && (
                   <Image
-                    src={formData.bannerURL}
+                    src={formData.banner_image}
                     alt="Preview"
                     id="bannerPreview"
                     width={100}
