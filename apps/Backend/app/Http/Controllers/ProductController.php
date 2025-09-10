@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Product;
 
@@ -14,7 +15,10 @@ class ProductController extends Controller
     {
         $user_id = auth()->user()->id;
 
-        $products = Product::where("user_id",$user_id)->get();
+        $products = Product::where("user_id", $user_id)->get()->map(function($product){
+            $product->banner_image = $product->banner_image ? asset("storage/" . $product->banner_image) : null;
+            return $product;
+        });
 
         return response()->json([
             "status" => true,
@@ -27,18 +31,19 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('products/store', $request->all());
         $data = $request -> validate([
-            "title" => "required"
+            "title" => "required",
+            "description" => "required",
+            "cost" => "required|integer"
         ]);
-
-        $data["description"] = $request->description;
-        $data["cost"] = $request->cost;
 
         $data["user_id"] = auth()->user()->id;
         if($request->hasFile("banner_image")){
             $data["banner_image"] = $request->file("banner_image")->store("products", "public");
         }
 
+        Log::info('$data', $data);
         Product::create($data);
 
         return response()->json([

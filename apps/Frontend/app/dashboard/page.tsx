@@ -9,23 +9,25 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
 interface ProductType {
+  id?: number;
   title: string;
-  description: string;
-  cost: number;
-  file: File | null;
-  banner_image: string;
+  description?: string;
+  cost?: number;
+  file?: string;
+  banner_image?: File | null;
 }
 
 const Dashboard: React.FC = () => {
   const { isLoading, authToken } = myAppHook();
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
-  const [formData, setFormDate] = useState<ProductType>({
+  const [products, setProducts] = useState<ProductType[]>([]);
+  const [formData, setFormData] = useState<ProductType>({
     title: "",
     description: "",
     cost: 0,
-    file: null,
-    banner_image: "",
+    file: "",
+    banner_image: null,
   });
 
   useEffect(() => {
@@ -33,17 +35,20 @@ const Dashboard: React.FC = () => {
       router.push("/auth");
       return;
     }
+    fetchAllProducts();
   }, [authToken]);
 
   const handleOnChangeEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      setFormDate({
+      // upload file
+      setFormData({
         ...formData,
-        file: event.target.files[0],
-        banner_image: URL.createObjectURL(event.target.files[0]),
+        banner_image: event.target.files[0],
+        file: URL.createObjectURL(event.target.files[0]),
       });
     } else {
-      setFormDate({
+      // no file
+      setFormData({
         ...formData,
         [event.target.name]: event.target.value,
       });
@@ -64,6 +69,38 @@ const Dashboard: React.FC = () => {
           },
         }
       );
+      console.log(response);
+
+      if (response.data.status) {
+        toast.success("Product Created successfully");
+        //toast.success(response.data.message);
+        setFormData({
+          title: "",
+          description: "",
+          cost: 0,
+          file: "",
+          banner_image: null,
+        });
+      }
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchAllProducts = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/products`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      setProducts(response.data.products);
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -104,14 +141,13 @@ const Dashboard: React.FC = () => {
                 required
               />
               <div className="mb-2">
-                {formData.banner_image && (
+                {formData.file && (
                   <Image
-                    src={formData.banner_image}
+                    src={formData.file}
                     alt="Preview"
                     id="bannerPreview"
                     width={100}
                     height={100}
-                    style={{ display: "none" }}
                   />
                 )}
               </div>
@@ -144,27 +180,47 @@ const Dashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className="px-4 py-2 border-b">1</td>
-                  <td className="px-4 py-2 border-b">Sample Product</td>
-                  <td className="px-4 py-2 border-b">
-                    {/* <Image
-                      src="#"
-                      alt="Product"
-                      width={50}
-                      height={50}
-                    /> */}
-                  </td>
-                  <td className="px-4 py-2 border-b">$100</td>
-                  <td className="px-4 py-2 border-b">
-                    <button className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 mr-2">
-                      Edit
-                    </button>
-                    <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+                {products.map((singleProduct, index) => (
+                  <tr key={singleProduct.id}>
+                    <td className="px-4 py-2 border-b">{singleProduct.id}</td>
+                    <td className="px-4 py-2 border-b">
+                      {singleProduct.title}
+                    </td>
+                    <td className="px-4 py-2 border-b">
+                      {singleProduct.banner_image ? (
+                        <Image
+                          src={singleProduct.banner_image}
+                          alt="Product"
+                          width={50}
+                          height={50}
+                        />
+                      ) : (
+                        "No Image"
+                      )}
+                    </td>
+                    <td className="px-4 py-2 border-b">
+                      ${singleProduct.cost}
+                    </td>
+                    <td className="px-4 py-2 border-b">
+                      <button
+                        className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 mr-2"
+                        onClick={() => {
+                          setFormData({
+                            id: singleProduct.id,
+                            title: singleProduct.title,
+                            cost: singleProduct.cost,
+                            description: singleProduct.description,
+                          });
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
