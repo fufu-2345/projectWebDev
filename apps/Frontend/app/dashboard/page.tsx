@@ -22,6 +22,7 @@ const Dashboard: React.FC = () => {
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [products, setProducts] = useState<ProductType[]>([]);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [formData, setFormData] = useState<ProductType>({
     title: "",
     description: "",
@@ -58,32 +59,49 @@ const Dashboard: React.FC = () => {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      console.log(formData);
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/products`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "multipart/form-data",
+      if (isEdit) {
+        // edit product
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/products/${formData.id}`,
+          {
+            ...formData,
+            _method: "PUT",
           },
-        }
-      );
-      console.log(response);
-
-      if (response.data.status) {
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         toast.success("Product Created successfully");
-        //toast.success(response.data.message);
-        setFormData({
-          title: "",
-          description: "",
-          cost: 0,
-          file: "",
-          banner_image: null,
-        });
-      }
-      if (fileRef.current) {
-        fileRef.current.value = "";
+        fetchAllProducts();
+      } else {
+        // add product
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/products`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (response.data.status) {
+          toast.success("Product Created successfully");
+          //toast.success(response.data.message);
+          setFormData({
+            title: "",
+            description: "",
+            cost: 0,
+            file: "",
+            banner_image: null,
+          });
+          if (fileRef.current) {
+            fileRef.current.value = "";
+          }
+        }
       }
     } catch (error) {
       console.log(error);
@@ -113,7 +131,9 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Add Product Section */}
           <div className="card p-4 border border-gray-200 rounded-lg shadow-md">
-            <h4 className="text-xl font-semibold mb-4">Add Product</h4>
+            <h4 className="text-xl font-semibold mb-4">
+              {isEdit ? "Edit" : "Add"} Product
+            </h4>
             <form onSubmit={handleFormSubmit}>
               <input
                 className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
@@ -162,7 +182,7 @@ const Dashboard: React.FC = () => {
                 className="w-full bg-blue-500 text-white py-3 rounded-md hover:bg-blue-600"
                 type="submit"
               >
-                Add Product
+                {isEdit ? "Update" : "Add"} Product
               </button>
             </form>
           </div>
@@ -210,7 +230,9 @@ const Dashboard: React.FC = () => {
                             title: singleProduct.title,
                             cost: singleProduct.cost,
                             description: singleProduct.description,
+                            file: singleProduct.banner_image,
                           });
+                          setIsEdit(true);
                         }}
                       >
                         Edit

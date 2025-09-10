@@ -73,6 +73,9 @@ class ProductController extends Controller
             "title" => "required"
         ]);
 
+        $data["description"] = isset($request->description) ? $request->description : $product->description;
+        $data["cost"] = isset($request->cost) ? $request->cost : $product->cost;
+
         if($request->hasFile("banner_image")){
             if($product->banner_image){
                 Storage::disk("public")->delete($product->banner_image);
