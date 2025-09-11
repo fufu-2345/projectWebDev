@@ -55,7 +55,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         toast.error("Invalid login details");
       }
-      console.log(response);
     } catch (error) {
       console.log("ERRROR");
     } finally {
@@ -77,7 +76,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         password,
         password_confirmation,
       });
-      console.log(response);
+      toast.success(response.data.message);
     } catch (error) {
     } finally {
       setIsLoading(false);

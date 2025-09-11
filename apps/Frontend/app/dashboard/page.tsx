@@ -89,6 +89,7 @@ const Dashboard: React.FC = () => {
           }
         );
         if (response.data.status) {
+          fetchAllProducts();
           toast.success("Product Created successfully");
           //toast.success(response.data.message);
           setFormData({
@@ -108,6 +109,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // List all products
   const fetchAllProducts = async () => {
     try {
       const response = await axios.get(
@@ -119,10 +121,45 @@ const Dashboard: React.FC = () => {
         }
       );
       setProducts(response.data.products);
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleDeleteProduct = async (id: number) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.delete(
+            `${process.env.NEXT_PUBLIC_API_URL}/products/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
+          if (response.data.status) {
+            //toast.success(response.data.message);
+            Swal.fire({
+              title: "Deleted!",
+              text: "Your file has been deleted.",
+              icon: "success",
+            });
+            fetchAllProducts();
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    });
   };
 
   return (
@@ -237,7 +274,10 @@ const Dashboard: React.FC = () => {
                       >
                         Edit
                       </button>
-                      <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+                      <button
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                        onClick={() => handleDeleteProduct(singleProduct.id)}
+                      >
                         Delete
                       </button>
                     </td>
