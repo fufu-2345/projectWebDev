@@ -29,15 +29,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log(isLoading);
     const token = Cookies.get("authToken");
-
     if (token) {
       setAuthToken(token);
     } else {
       router.push("/auth");
     }
-    setIsLoading(false);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 10);
   });
 
   const login = async (email: string, password: string) => {

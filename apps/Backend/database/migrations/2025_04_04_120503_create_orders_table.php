@@ -12,16 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->string('order_id')->primary();
-            $table->json('order_product');
-            $table->dateTime('order_datetime');
-            $table->float('order_totalprice');
-            $table->text('order_promotion')->nullable();
-            $table->enum('order_status', ['in cart', 'wait', 'payment', 'shipping', 'complete'])->default('in cart');
-            $table->string('customer_id');
-
-            $table->foreign('customer_id')->references('customer_id')->on('customers')->onDelete('cascade');
-
+            $table->id();
+            $table->json('product');
+            $table->datetime('datetime');
+            $table->float('totalprice');
+            $table->string('promotion', 80)->nullable();
+            $table->enum('status', ['in cart', 'wait', 'payment', 'shipping', 'complete'])->default('in cart');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

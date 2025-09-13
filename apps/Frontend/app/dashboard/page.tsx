@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { myAppHook } from "@/context/AppProvider";
 import { useRouter } from "next/navigation";
+import Loader from "@/components/Loader";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -30,6 +31,10 @@ const Dashboard: React.FC = () => {
     file: "",
     banner_image: null,
   });
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   useEffect(() => {
     if (!authToken) {

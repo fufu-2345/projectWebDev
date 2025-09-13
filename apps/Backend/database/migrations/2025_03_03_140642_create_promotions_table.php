@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('promotions', function (Blueprint $table) {
-            $table->string('promotion_id')->primary();
-            $table->integer('promotion_discount');
+            $table->id();
+            $table->float("discount");
             $table->timestamps();
         });
     }

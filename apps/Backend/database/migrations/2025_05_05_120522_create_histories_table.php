@@ -12,15 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('histories', function (Blueprint $table) {
-            $table->string('history_id')->primary();
-            $table->float('history_totalprice');
-            $table->dateTime('history_datetime');
-            $table->string('order_id');
-            $table->string('customer_id');
-
-            $table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade');
-            $table->foreign('customer_id')->references('customer_id')->on('customers')->onDelete('cascade');
-
+            $table->id();
+            $table->float('totalprice');
+            $table->datetime('datetime');
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

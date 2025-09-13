@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { myAppHook } from "@/context/AppProvider";
+import Loader from "@/components/Loader";
 import { useRouter } from "next/navigation";
 
 interface formData {
@@ -22,6 +23,10 @@ const Auth: React.FC = () => {
 
   const router = useRouter();
   const { login, register, authToken, isLoading } = myAppHook();
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   useEffect(() => {
     if (authToken) {
