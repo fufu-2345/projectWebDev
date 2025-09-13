@@ -16,6 +16,11 @@ return new class extends Migration
             $table->float("discount");
             $table->timestamps();
         });
+
+        // seeder for intitial promotions
+        Artisan::call('db:seed', [
+            '--class' => 'PromotionSeeder'
+        ]);
     }
 
     /**
