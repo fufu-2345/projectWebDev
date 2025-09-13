@@ -11,11 +11,12 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user_id = auth()->user()->id;
+        log::info('products/index');
+        $category = $request->query('category');
 
-        $products = Product::where("user_id", $user_id)->get()->map(function($product){
+        $products = Product::query()->where("category", $category)->get()->map(function($product){
             $product->banner_image = $product->banner_image ? asset("storage/" . $product->banner_image) : null;
             return $product;
         });
@@ -34,11 +35,11 @@ class ProductController extends Controller
         Log::info('products/store', $request->all());
         $data = $request -> validate([
             "title" => "required",
-            "description" => "required",
-            "cost" => "required|integer"
+            "cost" => "required|integer",
+            "category" => "required",
+            "stock" => "required|integer"
         ]);
 
-        $data["user_id"] = auth()->user()->id;
         if($request->hasFile("banner_image")){
             $data["banner_image"] = $request->file("banner_image")->store("products", "public");
         }

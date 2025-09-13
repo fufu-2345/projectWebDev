@@ -9,16 +9,27 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
+enum Category {
+  Pencil = "Pencil",
+  Eraser = "Eraser",
+  Ruler = "Ruler",
+  Pen = "Pen",
+  Liquid = "Liquid",
+  Paint = "Paint",
+}
+
 interface ProductType {
   id?: number;
   title: string;
-  description?: string;
+  category: Category;
   cost?: number;
+  stock: number;
   file?: string;
   banner_image?: File | null;
 }
 
 const Dashboard: React.FC = () => {
+  const categories = "Eraser";
   const { isLoading, authToken } = myAppHook();
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
@@ -26,8 +37,9 @@ const Dashboard: React.FC = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [formData, setFormData] = useState<ProductType>({
     title: "",
-    description: "",
+    category: Category.Pencil,
     cost: 0,
+    stock: 0,
     file: "",
     banner_image: null,
   });
@@ -99,8 +111,9 @@ const Dashboard: React.FC = () => {
           //toast.success(response.data.message);
           setFormData({
             title: "",
-            description: "",
+            category: Category.Pencil,
             cost: 0,
+            stock: 0,
             file: "",
             banner_image: null,
           });
@@ -120,6 +133,7 @@ const Dashboard: React.FC = () => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/products`,
         {
+          params: { category: categories },
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -185,20 +199,35 @@ const Dashboard: React.FC = () => {
                 onChange={handleOnChangeEvent}
                 required
               />
-              <input
+              <select
                 className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-                name="description"
-                placeholder="Description"
-                value={formData.description}
+                name="category"
+                value={formData.category}
                 onChange={handleOnChangeEvent}
                 required
-              />
+              >
+                <option value={Category.Pencil}>Pencil</option>
+                <option value={Category.Eraser}>Eraser</option>
+                <option value={Category.Ruler}>Ruler</option>
+                <option value={Category.Pen}>Pen</option>
+                <option value={Category.Liquid}>Liquid</option>
+                <option value={Category.Paint}>Paint</option>
+              </select>
               <input
                 className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
                 name="cost"
                 placeholder="Cost"
                 type="number"
                 value={formData.cost}
+                onChange={handleOnChangeEvent}
+                required
+              />
+              <input
+                className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+                name="stock"
+                placeholder="stock"
+                type="number"
+                value={formData.stock}
                 onChange={handleOnChangeEvent}
                 required
               />
@@ -269,9 +298,10 @@ const Dashboard: React.FC = () => {
                         onClick={() => {
                           setFormData({
                             id: singleProduct.id,
-                            title: singleProduct.title,
+                            category: singleProduct.category,
                             cost: singleProduct.cost,
-                            description: singleProduct.description,
+                            stock: singleProduct.stock,
+                            title: singleProduct.title,
                             file: singleProduct.banner_image,
                           });
                           setIsEdit(true);
