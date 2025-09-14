@@ -139,6 +139,7 @@ const Dashboard: React.FC = () => {
           },
         }
       );
+      console.log(response);
       setProducts(response.data.products);
     } catch (error) {
       console.log(error);

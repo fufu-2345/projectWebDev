@@ -15,8 +15,12 @@ class ProductController extends Controller
     {
         log::info('products/index');
         $category = $request->query('category');
+        $query = Product::query();
+        if($category){
+            $query->where("category", $category);
+        }
 
-        $products = Product::query()->where("category", $category)->get()->map(function($product){
+        $products = $query->get()->map(function($product){
             $product->banner_image = $product->banner_image ? asset("storage/" . $product->banner_image) : null;
             return $product;
         });
