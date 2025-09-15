@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PromotionController;
 
 use App\Http\Controllers\TestController;
 Route::get('/hello', function () {
@@ -13,7 +14,6 @@ Route::get('/hello', function () {
 
 Route::post("register", [AuthController::class, "register"]);
 Route::post("login", [AuthController::class, "login"]);
-Route::apiResource("products", ProductController::class);
 
 // ใน group คือพวกที่ต้อง login แล้วเท่านั้น
 // ถ้าใครจะทดสอบ api ใน postman ให้ลองข้างนอก
@@ -24,8 +24,9 @@ Route::group([
     Route::get("profile", [AuthController::class, "profile"]);
     Route::get("logout", [AuthController::class, "logout"]);
     Route::get("users", [UserController::class, "showUser"]);
+    Route::get("promotions", [PromotionController::class, "index"]);
 
-    //Route::apiResource("products", ProductController::class);
+    Route::apiResource("products", ProductController::class);
 });
 
 
