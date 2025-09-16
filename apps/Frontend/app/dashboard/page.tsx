@@ -29,10 +29,10 @@ interface ProductType {
 }
 
 const Dashboard: React.FC = () => {
-  const categories = "Eraser";
   const { isLoading, authToken } = myAppHook();
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
+  const [categories, setCategories] = useState<Category>(Category.Eraser);
   const [products, setProducts] = useState<ProductType[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [formData, setFormData] = useState<ProductType>({
@@ -91,8 +91,23 @@ const Dashboard: React.FC = () => {
             },
           }
         );
-        toast.success("Product Created successfully");
-        fetchAllProducts();
+        if (response.data.status) {
+          fetchAllProducts();
+          toast.success("Product Update successfully");
+          //toast.success(response.data.message);
+          setFormData({
+            title: "",
+            category: Category.Pencil,
+            cost: 0,
+            stock: 0,
+            file: "",
+            banner_image: null,
+          });
+          setIsEdit(false);
+          if (fileRef.current) {
+            fileRef.current.value = "";
+          }
+        }
       } else {
         // add product
         const response = await axios.post(

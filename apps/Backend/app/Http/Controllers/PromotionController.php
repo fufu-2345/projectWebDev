@@ -27,4 +27,27 @@ class PromotionController extends Controller
         ]);
     }
 
+    public function update(Request $request, Product $product)
+    {
+        $data = $request -> validate([
+            "title" => "required"
+        ]);
+        $category = isset($request->category) ? $request->category : $product->category;
+        $data["cost"] = isset($request->cost) ? $request->cost : $product->cost;
+
+        if($request->hasFile("banner_image")){
+            if($product->banner_image){
+                Storage::disk("public")->delete($product->banner_image);
+            }
+
+            $data["banner_image"] = $request->file("banner_image")->store("products","public");
+        }
+        $product->update($data);
+
+        return response()->json([
+            "status" => true,
+            "message" => "Product data updated"
+        ]);
+    }
+
 }

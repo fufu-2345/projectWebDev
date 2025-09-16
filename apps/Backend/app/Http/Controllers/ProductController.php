@@ -48,7 +48,6 @@ class ProductController extends Controller
             $data["banner_image"] = $request->file("banner_image")->store("products", "public");
         }
 
-        Log::info('$data', $data);
         Product::create($data);
 
         return response()->json([
@@ -74,11 +73,11 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        log::info('products/update');
         $data = $request -> validate([
             "title" => "required"
         ]);
-
-        $data["description"] = isset($request->description) ? $request->description : $product->description;
+        $category = isset($request->category) ? $request->category : $product->category;
         $data["cost"] = isset($request->cost) ? $request->cost : $product->cost;
 
         if($request->hasFile("banner_image")){
