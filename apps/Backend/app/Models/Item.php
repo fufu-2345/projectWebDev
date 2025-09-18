@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class history extends Model
+class Item extends Model
 {
     protected $fillable =[
-        "totalprice",
-        "items",
-        "user_id"
+        "order_id",
+        "product_id",
+        "quantity"
     ];
 }

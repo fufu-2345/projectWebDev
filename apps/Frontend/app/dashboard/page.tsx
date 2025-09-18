@@ -16,6 +16,7 @@ enum Category {
   Pen = "Pen",
   Liquid = "Liquid",
   Paint = "Paint",
+  All = "",
 }
 
 interface ProductType {
@@ -32,7 +33,7 @@ const Dashboard: React.FC = () => {
   const { isLoading, authToken } = myAppHook();
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
-  const [categories, setCategories] = useState<Category>(Category.Eraser);
+  const [categories, setCategories] = useState<Category>(Category.All);
   const [products, setProducts] = useState<ProductType[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [formData, setFormData] = useState<ProductType>({
@@ -154,7 +155,6 @@ const Dashboard: React.FC = () => {
           },
         }
       );
-      console.log(response);
       setProducts(response.data.products);
     } catch (error) {
       console.log(error);
@@ -197,10 +197,30 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  const handleOptionChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setCategories(event.target.value as Category);
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/products`,
+        {
+          params: { category: event.target.value },
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      setProducts(response.data.products);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <div className="container mx-auto mt-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Add Product Section */}
           <div className="card p-4 border border-gray-200 rounded-lg shadow-md">
             <h4 className="text-xl font-semibold mb-4">
@@ -222,6 +242,7 @@ const Dashboard: React.FC = () => {
                 onChange={handleOnChangeEvent}
                 required
               >
+                <option value={""}>All Product</option>
                 <option value={Category.Pencil}>Pencil</option>
                 <option value={Category.Eraser}>Eraser</option>
                 <option value={Category.Ruler}>Ruler</option>
@@ -235,6 +256,7 @@ const Dashboard: React.FC = () => {
                 placeholder="Cost"
                 type="number"
                 value={formData.cost}
+                pattern="^/d+(\.[0-9]{1,2})?$"
                 onChange={handleOnChangeEvent}
                 required
               />
@@ -244,6 +266,7 @@ const Dashboard: React.FC = () => {
                 placeholder="stock"
                 type="number"
                 value={formData.stock}
+                pattern="^/d+$"
                 onChange={handleOnChangeEvent}
                 required
               />
@@ -275,67 +298,82 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Product List Section */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full table-auto border-collapse border border-gray-300">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 text-left border-b">ID</th>
-                  <th className="px-4 py-2 text-left border-b">Title</th>
-                  <th className="px-4 py-2 text-left border-b">Banner</th>
-                  <th className="px-4 py-2 text-left border-b">Cost</th>
-                  <th className="px-4 py-2 text-left border-b">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((singleProduct, index) => (
-                  <tr key={singleProduct.id}>
-                    <td className="px-4 py-2 border-b">{singleProduct.id}</td>
-                    <td className="px-4 py-2 border-b">
-                      {singleProduct.title}
-                    </td>
-                    <td className="px-4 py-2 border-b">
-                      {singleProduct.banner_image ? (
-                        <Image
-                          src={singleProduct.banner_image}
-                          alt="Product"
-                          width={50}
-                          height={50}
-                        />
-                      ) : (
-                        "No Image"
-                      )}
-                    </td>
-                    <td className="px-4 py-2 border-b">
-                      ${singleProduct.cost}
-                    </td>
-                    <td className="px-4 py-2 border-b">
-                      <button
-                        className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 mr-2"
-                        onClick={() => {
-                          setFormData({
-                            id: singleProduct.id,
-                            category: singleProduct.category,
-                            cost: singleProduct.cost,
-                            stock: singleProduct.stock,
-                            title: singleProduct.title,
-                            file: singleProduct.banner_image,
-                          });
-                          setIsEdit(true);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                        onClick={() => handleDeleteProduct(singleProduct.id)}
-                      >
-                        Delete
-                      </button>
-                    </td>
+          <div>
+            <select
+              className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+              value={categories}
+              onChange={handleOptionChange}
+            >
+              <option value={Category.All}>All Product</option>
+              <option value={Category.Pencil}>Pencil</option>
+              <option value={Category.Eraser}>Eraser</option>
+              <option value={Category.Ruler}>Ruler</option>
+              <option value={Category.Pen}>Pen</option>
+              <option value={Category.Liquid}>Liquid</option>
+              <option value={Category.Paint}>Paint</option>
+            </select>
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto border-collapse border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 text-left border-b">ID</th>
+                    <th className="px-4 py-2 text-left border-b">Title</th>
+                    <th className="px-4 py-2 text-left border-b">Banner</th>
+                    <th className="px-4 py-2 text-left border-b">Cost</th>
+                    <th className="px-4 py-2 text-left border-b">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {products.map((singleProduct, index) => (
+                    <tr key={singleProduct.id}>
+                      <td className="px-4 py-2 border-b">{singleProduct.id}</td>
+                      <td className="px-4 py-2 border-b">
+                        {singleProduct.title}
+                      </td>
+                      <td className="px-4 py-2 border-b">
+                        {singleProduct.banner_image ? (
+                          <Image
+                            src={singleProduct.banner_image}
+                            alt="Product"
+                            width={50}
+                            height={50}
+                          />
+                        ) : (
+                          "No Image"
+                        )}
+                      </td>
+                      <td className="px-4 py-2 border-b">
+                        ${singleProduct.cost}
+                      </td>
+                      <td className="px-4 py-2 border-b">
+                        <button
+                          className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 mr-2"
+                          onClick={() => {
+                            setFormData({
+                              id: singleProduct.id,
+                              category: singleProduct.category,
+                              cost: singleProduct.cost,
+                              stock: singleProduct.stock,
+                              title: singleProduct.title,
+                              file: singleProduct.banner_image,
+                            });
+                            setIsEdit(true);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                          onClick={() => handleDeleteProduct(singleProduct.id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

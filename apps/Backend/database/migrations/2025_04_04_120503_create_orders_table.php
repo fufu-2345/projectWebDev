@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->json('product');
             $table->datetime('datetime');
             $table->float('totalprice');
             $table->string('promotion', 80)->nullable();

@@ -26,8 +26,6 @@ Route::group([
     Route::get("logout", [AuthController::class, "logout"]);
     Route::get("users", [UserController::class, "showUser"]);
     Route::get("promotions", [PromotionController::class, "index"]);
-
-
 });
 
 

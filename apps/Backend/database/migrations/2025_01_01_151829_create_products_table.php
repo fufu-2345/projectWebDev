@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title',80);
             // $table->longText('description');
             $table->string('banner_image',220)->nullable();
-            $table->integer("cost")->nullable();
+            $table->float("cost")->nullable();
             // $table->foreignId("user_id")->constrained("users");
             $table->string('category',80);
             $table->integer("stock")->default(0);
