@@ -23,14 +23,14 @@ interface ProductType {
   id?: number;
   title: string;
   category: Category;
-  cost?: number;
+  cost: number;
   stock: number;
   file?: string;
   banner_image?: File | null;
 }
 
 const Dashboard: React.FC = () => {
-  const { isLoading, authToken } = myAppHook();
+  const { isLoading, authToken, role } = myAppHook();
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<Category>(Category.All);
@@ -54,6 +54,7 @@ const Dashboard: React.FC = () => {
       router.push("/auth");
       return;
     }
+    console.log(role);
     fetchAllProducts();
   }, [authToken]);
 
@@ -76,6 +77,10 @@ const Dashboard: React.FC = () => {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (formData.cost < 0 || formData.stock < 0) {
+      toast.error("Cost and Stock must be non-negative values.");
+      return;
+    }
     try {
       if (isEdit) {
         // edit product
@@ -257,6 +262,7 @@ const Dashboard: React.FC = () => {
                 type="number"
                 value={formData.cost}
                 pattern="^/d+(\.[0-9]{1,2})?$"
+                // min="0"
                 onChange={handleOnChangeEvent}
                 required
               />
@@ -267,6 +273,7 @@ const Dashboard: React.FC = () => {
                 type="number"
                 value={formData.stock}
                 pattern="^/d+$"
+                // min="0"
                 onChange={handleOnChangeEvent}
                 required
               />

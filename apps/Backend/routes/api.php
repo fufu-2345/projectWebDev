@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\AdminController;
 
 use App\Http\Controllers\TestController;
 Route::get('/hello', function () {
@@ -28,6 +29,10 @@ Route::group([
     Route::get("promotions", [PromotionController::class, "index"]);
 });
 
+
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/admin-only', [AdminController::class, 'index']);
+});
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();

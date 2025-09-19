@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
+    "@types/chart.js": "^4.0.1",
     "@types/js-cookie": "^3.0.6",
     "axios": "^1.11.0",
     "bootstrap": "^5.3.8",
+    "chart.js": "^4.5.0",
     "js-cookie": "^3.0.5",
     "next": "^15.2.1",
     "react": "^19.1.0",

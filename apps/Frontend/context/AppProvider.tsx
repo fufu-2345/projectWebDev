@@ -7,9 +7,15 @@ import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
+enum Role {
+  User = "user",
+  Admin = "admin",
+}
+
 interface AppProviderType {
   isLoading: boolean;
   authToken: string | null;
+  role: Role;
   login: (email: string, password: string) => Promise<void>;
   register: (
     name: string,
@@ -26,12 +32,16 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [role, setRole] = useState<Role>(Role.User);
+  //let role = Role.User;
   const router = useRouter();
 
   useEffect(() => {
     const token = Cookies.get("authToken");
+    const role = Cookies.get("roleToken");
     if (token) {
       setAuthToken(token);
+      setRole(role as Role);
     } else {
       router.push("/auth");
     }
@@ -49,9 +59,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       });
       if (response.data.status) {
         Cookies.set("authToken", response.data.token, { expires: 7 });
+        Cookies.set("roleToken", response.data.role, { expires: 7 });
         toast.success("Login successful");
         setAuthToken(response.data.token);
-        router.push("/dashboard");
+        setRole(response.data.role);
+        router.push("/");
       } else {
         toast.error("Invalid login details");
       }
@@ -93,7 +105,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AppContext.Provider
-      value={{ login, register, isLoading, authToken, logout }}
+      value={{ login, register, isLoading, authToken, role, logout }}
     >
       {isLoading ? <Loader /> : children}
     </AppContext.Provider>
