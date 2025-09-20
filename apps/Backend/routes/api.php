@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\AdminController;
+use App\Http\Middleware\CheckRole;
 
 use App\Http\Controllers\TestController;
 Route::get('/hello', function () {
@@ -23,15 +25,18 @@ Route::apiResource("products", ProductController::class);
 Route::group([
     "middleware" => ["auth:sanctum"]
 ], function(){
+    Log::info("normal");
     Route::get("profile", [AuthController::class, "profile"]);
     Route::get("logout", [AuthController::class, "logout"]);
     Route::get("users", [UserController::class, "showUser"]);
     Route::get("promotions", [PromotionController::class, "index"]);
+    // Route::get('admin-test', [AdminController::class, 'test']);
 });
 
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::get('/admin-only', [AdminController::class, 'index']);
+Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
+    Log::info("admin");
+    Route::get('admin-test', [AdminController::class, 'test']);
 });
 
 // Route::get('/user', function (Request $request) {

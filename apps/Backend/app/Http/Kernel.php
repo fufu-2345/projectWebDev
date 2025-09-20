@@ -3,11 +3,17 @@
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+// use App\Http\Middleware\CheckRole;
 
 class Kernel extends HttpKernel
 {
+    protected $middleware = [
+    ];
+
+    protected $middlewareGroups = [
+    ];
 
     protected $routeMiddleware = [
-        'role' => \App\Http\Middleware\CheckRole::class,
+        'checkRole' => \App\Http\Middleware\CheckRole::class,
     ];
 }

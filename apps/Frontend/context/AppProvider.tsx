@@ -38,10 +38,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const token = Cookies.get("authToken");
-    const role = Cookies.get("roleToken");
     if (token) {
       setAuthToken(token);
-      setRole(role as Role);
     } else {
       router.push("/auth");
     }
