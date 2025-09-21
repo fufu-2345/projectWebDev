@@ -15,4 +15,10 @@ class order extends Model
         "order_status",
         "user_id"
     ];
+
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }
