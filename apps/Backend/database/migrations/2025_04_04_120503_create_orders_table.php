@@ -16,7 +16,7 @@ return new class extends Migration
             $table->datetime('datetime');
             $table->float('totalprice');
             $table->string('promotion', 80)->nullable();
-            $table->enum('status', ['in cart', 'wait', 'payment', 'shipping', 'complete'])->default('in cart');
+            $table->enum('status', ['in cart', 'wait payment', 'shipping', 'completed'])->default('in cart');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

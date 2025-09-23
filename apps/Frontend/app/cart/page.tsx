@@ -26,7 +26,7 @@ interface Order {
 }
 
 const Page: React.FC = () => {
-  const { authToken, isLoading: authLoading } = myAppHook(); 
+  const { authToken, isLoading: authLoading } = myAppHook();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +51,7 @@ const Page: React.FC = () => {
     };
 
     fetchCart();
-  }, [authToken]); 
+  }, [authToken]);
 
   const handleCheckout = async () => {
     if (!authToken) {
@@ -67,7 +67,7 @@ const Page: React.FC = () => {
       const data = await res.json();
       if (data.status) {
         alert("Order placed successfully!");
-  
+
         const resCart = await fetch("http://localhost:8000/api/cart", {
           headers: { Authorization: `Bearer ${authToken}` },
         });
@@ -111,7 +111,9 @@ const Page: React.FC = () => {
               <td className="p-2 border">{item.product.title}</td>
               <td className="p-2 border">{item.product.cost}</td>
               <td className="p-2 border">{item.quantity}</td>
-              <td className="p-2 border">{item.quantity * item.product.cost}</td>
+              <td className="p-2 border">
+                {item.quantity * item.product.cost}
+              </td>
             </tr>
           ))}
         </tbody>

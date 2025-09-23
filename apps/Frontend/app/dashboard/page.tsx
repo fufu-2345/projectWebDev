@@ -39,7 +39,7 @@ const Dashboard: React.FC = () => {
   const [formData, setFormData] = useState<ProductType>({
     title: "",
     category: Category.Pencil,
-    cost: 0,
+    cost: 0.0,
     stock: 0,
     file: "",
     banner_image: null,
@@ -104,7 +104,7 @@ const Dashboard: React.FC = () => {
           setFormData({
             title: "",
             category: Category.Pencil,
-            cost: 0,
+            cost: 0.0,
             stock: 0,
             file: "",
             banner_image: null,
@@ -133,7 +133,7 @@ const Dashboard: React.FC = () => {
           setFormData({
             title: "",
             category: Category.Pencil,
-            cost: 0,
+            cost: 0.0,
             stock: 0,
             file: "",
             banner_image: null,
