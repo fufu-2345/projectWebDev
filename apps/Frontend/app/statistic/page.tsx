@@ -1,4 +1,6 @@
-import React, { useRef, useEffect } from "react";
+"use client";
+
+import React, { useRef, useEffect, use } from "react";
 import { Chart } from "chart.js";
 
 // temp from net

@@ -27,7 +27,7 @@ class PromotionController extends Controller
         ]);
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request)
     {
         $data = $request -> validate([
             "title" => "required"
@@ -42,7 +42,7 @@ class PromotionController extends Controller
 
             $data["banner_image"] = $request->file("banner_image")->store("products","public");
         }
-        $product->update($data);
+        $promotion->update($data);
 
         return response()->json([
             "status" => true,

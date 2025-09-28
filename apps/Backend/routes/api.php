@@ -20,13 +20,12 @@ Route::post("login", [AuthController::class, "login"]);
 Route::get("profile", [AuthController::class, "profile"]);
 Route::apiResource("products", ProductController::class);
 
-/////// ส่งความคืบหน้าครั้งที่ 2
+/*  ส่งความคืบหน้าครั้งที่ 2
 Route::get("getShippingOrders", [AdminController::class, "getShippingOrders"]);
 Route::get("getCategorySummary", [AdminController::class, "getCategorySummary"]);
 Route::get("getUserOrderSummary", [AdminController::class, "getUserOrderSummary"]);
 Route::get("getProductSummary", [AdminController::class, "getProductSummary"]);
-///////
-
+*/
 
 // ใน group คือพวกที่ต้อง login แล้วเท่านั้น
 // ถ้าใครจะทดสอบ api ใน postman ให้ลองข้างนอก
@@ -34,10 +33,11 @@ Route::get("getProductSummary", [AdminController::class, "getProductSummary"]);
 Route::group([
     "middleware" => ["auth:sanctum"]
 ], function(){
-    Log::info("normal");
     Route::get("profile", [AuthController::class, "profile"]);
     Route::get("logout", [AuthController::class, "logout"]);
     Route::get("users", [UserController::class, "showUser"]);
+    Route::get("promotions", [PromotionController::class, "index"]);
+    Route::get("updatePro", [PromotionController::class, "update"]);
 
     // Route::apiResource("products", ProductController::class);
     // Route::get('admin-test', [AdminController::class, 'test']);
