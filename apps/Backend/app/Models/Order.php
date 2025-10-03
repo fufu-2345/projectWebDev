@@ -7,12 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 class order extends Model
 {
     protected $fillable =[
-        "order_id",
-        "order_product",
+        "datetime",
+        "totalprice",
         "order_datetime",
-        "order_totalprice",
-        "order_promotion",
+        "promotion",
+        "status",
         "order_status",
-        "customer_id"
+        "user_id"
     ];
+
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }

@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     //Register API
     public function register(Request $request){
+        log::info('auth/register');
         $data = $request->validate([
             "name" => "required|string",
             "email" => "required|email|unique:users,email",
@@ -28,6 +30,7 @@ class AuthController extends Controller
 
     //Login API
     public function login(Request $request){
+        log::info('auth/login');
         $request->validate([
             "email" => "required|email",
             "password" => "required"
@@ -47,16 +50,26 @@ class AuthController extends Controller
         return response()->json([
             "status" => true,
             "message" => "User logged in",
-            "token" => $token
+            "token" => $token,
+            "role" => $user->role
         ]);
     }
 
     //Profile API
-    public function profile(){
-        $user = Auth::user();
+    public function profile(Request $request){
+        log::info('auth/profile');
+        $id = $request->query('id');
+        $query = User::query();
+        if($id){
+            $query->where("id", $id);
+        }
+
+        $user = $query->get()->map(function($user){
+            return $user;
+        });
+
         return response()->json([
             "status" => true,
-            "message" => "User profile data",
             "user" => $user
         ]);
     }
