@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\TestController;
 Route::get('/hello', function () {
@@ -15,6 +16,7 @@ Route::get('/hello', function () {
 Route::post("register", [AuthController::class, "register"]);
 Route::post("login", [AuthController::class, "login"]);
 Route::apiResource("products", ProductController::class);
+Route::get('user/profile', [ProfileController::class, 'show']);
 
 // ใน group คือพวกที่ต้อง login แล้วเท่านั้น
 // ถ้าใครจะทดสอบ api ใน postman ให้ลองข้างนอก
@@ -26,6 +28,10 @@ Route::group([
     Route::get("logout", [AuthController::class, "logout"]);
     Route::get("users", [UserController::class, "showUser"]);
     Route::get("promotions", [PromotionController::class, "index"]);
+
+    Route::get('profile', [ProfileController::class, 'show']);
+    Route::post('profile', [ProfileController::class, 'update']);
+
 });
 
 

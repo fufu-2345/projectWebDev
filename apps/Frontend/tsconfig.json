@@ -11,6 +11,6 @@
     "next-env.d.ts",
     "next.config.ts",
     ".next/types/**/*.ts"
-  ],
+, "app/detail-product/page.jsx"  ],
   "exclude": ["node_modules"]
 }

@@ -51,4 +51,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function getProfilepicAttribute($value)
+    {
+        return $value ? asset('storage/' . $value) : null;
+    }
 }
