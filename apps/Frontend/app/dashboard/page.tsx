@@ -23,14 +23,14 @@ interface ProductType {
   id?: number;
   title: string;
   category: Category;
-  cost?: number;
+  cost: number;
   stock: number;
   file?: string;
   banner_image?: File | null;
 }
 
 const Dashboard: React.FC = () => {
-  const { isLoading, authToken } = myAppHook();
+  const { isLoading, authToken, role } = myAppHook();
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<Category>(Category.All);
@@ -39,7 +39,7 @@ const Dashboard: React.FC = () => {
   const [formData, setFormData] = useState<ProductType>({
     title: "",
     category: Category.Pencil,
-    cost: 0,
+    cost: 0.0,
     stock: 0,
     file: "",
     banner_image: null,
@@ -54,6 +54,7 @@ const Dashboard: React.FC = () => {
       router.push("/auth");
       return;
     }
+    console.log(role);
     fetchAllProducts();
   }, [authToken]);
 
@@ -76,6 +77,10 @@ const Dashboard: React.FC = () => {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (formData.cost < 0 || formData.stock < 0) {
+      toast.error("Cost and Stock must be non-negative values.");
+      return;
+    }
     try {
       if (isEdit) {
         // edit product
@@ -99,7 +104,7 @@ const Dashboard: React.FC = () => {
           setFormData({
             title: "",
             category: Category.Pencil,
-            cost: 0,
+            cost: 0.0,
             stock: 0,
             file: "",
             banner_image: null,
@@ -128,7 +133,7 @@ const Dashboard: React.FC = () => {
           setFormData({
             title: "",
             category: Category.Pencil,
-            cost: 0,
+            cost: 0.0,
             stock: 0,
             file: "",
             banner_image: null,
@@ -217,8 +222,33 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const adminTest = async () => {
+    console.log(role);
+    if (role !== "admin") {
+      toast.error("Only admin can access this function!");
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin-test`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      if (response.data.message) {
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      toast.error("Unauthorized or error occurred");
+      console.log(error);
+    }
+  };
+
   return (
     <>
+      <div onClick={() => adminTest()}>admin test</div>
       <div className="container mx-auto mt-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Add Product Section */}
@@ -257,6 +287,7 @@ const Dashboard: React.FC = () => {
                 type="number"
                 value={formData.cost}
                 pattern="^/d+(\.[0-9]{1,2})?$"
+                // min="0"
                 onChange={handleOnChangeEvent}
                 required
               />
@@ -267,6 +298,7 @@ const Dashboard: React.FC = () => {
                 type="number"
                 value={formData.stock}
                 pattern="^/d+$"
+                // min="0"
                 onChange={handleOnChangeEvent}
                 required
               />

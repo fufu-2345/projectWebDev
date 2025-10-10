@@ -79,6 +79,7 @@ class ProductController extends Controller
         ]);
         $category = isset($request->category) ? $request->category : $product->category;
         $data["cost"] = isset($request->cost) ? $request->cost : $product->cost;
+        $data["stock"] = isset($request->stock) ? $request->stock : $product->stock;
 
         if($request->hasFile("banner_image")){
             if($product->banner_image){

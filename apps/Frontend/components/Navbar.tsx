@@ -7,7 +7,7 @@ const Navbar = () => {
   const { logout, authToken } = myAppHook();
 
   return (
-    <nav className="bg-blue-600 text-white">
+    <nav className="bg-yellow-500 sm:bg-blue-600 text-white">
       <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
         <Link className="text-2xl font-bold" href="/">
           Navbar for normal user
@@ -26,41 +26,45 @@ const Navbar = () => {
 
         {/* Navbar links */}
         <div className="hidden lg:flex space-x-6">
-          <ul className="flex space-x-6">
-            {authToken ? (
-              <>
-                <li>
-                  <Link
-                    className="text-white hover:text-gray-300"
-                    href="/dashboard"
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-                <li>
-                  <button
-                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                    onClick={logout}
-                  >
-                    Logout
-                  </button>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link className="text-white hover:text-gray-300" href="/">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link className="text-white hover:text-gray-300" href="/auth">
-                    Login
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
+          {authToken ? (
+            <>
+              <Link className="text-white py-auto hover:text-gray-300" href="/">
+                Home
+              </Link>
+              <Link
+                className="text-white py-auto hover:text-gray-300"
+                href="/profile"
+              >
+                Profile
+              </Link>
+              <Link
+                className="text-white py-auto hover:text-gray-300"
+                href="/cart"
+              >
+                Cart
+              </Link>
+
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                onClick={logout}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <li>
+                <Link className="text-white hover:text-gray-300" href="/">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link className="text-white hover:text-gray-300" href="/auth">
+                  Login
+                </Link>
+              </li>
+            </>
+          )}
         </div>
       </div>
     </nav>
