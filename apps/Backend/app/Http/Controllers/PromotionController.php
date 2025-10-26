@@ -27,11 +27,8 @@ class PromotionController extends Controller
         ]);
     }
 
-<<<<<<< HEAD
     /*public function update(Request $request, Product $product)
-=======
     public function update(Request $request)
->>>>>>> 9c1608110782f2fcb8d9a2207378d4528b13ddaa
     {
         $data = $request -> validate([
             "title" => "required"
