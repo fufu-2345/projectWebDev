@@ -9,23 +9,29 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\CheckRole;
+use App\Http\Controllers\SessionController;
+
+Route::get('/getAllSession', [SessionController::class, 'getAllSession']);
 
 use App\Http\Controllers\TestController;
 Route::get('/hello', function () {
     return response()->json(['message' => 'hello']);
 });
 
+Route::middleware('web')->group(function () {
+    Route::post("login", [AuthController::class, "login"]);
+});
+
 Route::post("register", [AuthController::class, "register"]);
-Route::post("login", [AuthController::class, "login"]);
 Route::get("profile", [AuthController::class, "profile"]);
 Route::apiResource("products", ProductController::class);
 
-/*  ส่งความคืบหน้าครั้งที่ 2
+// ส่งความคืบหน้าครั้งที่ 2
 Route::get("getShippingOrders", [AdminController::class, "getShippingOrders"]);
 Route::get("getCategorySummary", [AdminController::class, "getCategorySummary"]);
 Route::get("getUserOrderSummary", [AdminController::class, "getUserOrderSummary"]);
 Route::get("getProductSummary", [AdminController::class, "getProductSummary"]);
-*/
+
 
 // ใน group คือพวกที่ต้อง login แล้วเท่านั้น
 // ถ้าใครจะทดสอบ api ใน postman ให้ลองข้างนอก
@@ -40,18 +46,7 @@ Route::group([
     Route::get("updatePro", [PromotionController::class, "update"]);
 
     // Route::apiResource("products", ProductController::class);
-    // Route::get('admin-test', [AdminController::class, 'test']);
 });
-
-
-Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
-    Log::info("admin");
-    Route::get('admin-test', [AdminController::class, 'test']);
-});
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
 
 
 use App\Http\Controllers\DetailProductController ;

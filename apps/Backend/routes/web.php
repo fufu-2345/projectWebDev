@@ -6,6 +6,9 @@ Route::get('/', function () {
     return 'hello';
 });
 
-// Route::get('/', function () {
-//     return response()->json(["status" => true, "message" => "User registered successfully"]);
-// });
+Route::middleware('web')->get('/get-role', function () {
+    return response()->json([
+        'role' => session('user_role'),
+        'id' => session('user_id')
+    ]);
+});

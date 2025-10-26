@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
@@ -47,6 +48,9 @@ class AuthController extends Controller
         //$user->createToken("myToken")->plainTextToken;
         $token = $user->createToken("myToken")->plainTextToken;
 
+        Session::put('user_role(session)', $user->role);
+        Session::put('user_id(session)', $user->id);
+
         return response()->json([
             "status" => true,
             "message" => "User logged in",
@@ -71,12 +75,14 @@ class AuthController extends Controller
         return response()->json([
             "status" => true,
             "user" => $user
+            // "session_role" => Session::get('user_role')
         ]);
     }
 
     //Logout API
     public function logout(){
         Auth::logout();
+        Session::flush();
         return response()->json([
             "status" => true,
             "message" => "User logged out successfully"
