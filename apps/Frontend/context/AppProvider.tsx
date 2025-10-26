@@ -15,6 +15,7 @@ enum Role {
 interface AppProviderType {
   isLoading: boolean;
   authToken: string | null;
+  role: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (
     name: string,
@@ -31,12 +32,14 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const token = Cookies.get("authToken");
     if (token) {
       setAuthToken(token);
+      fetchSession();
     } else {
       router.push("/auth");
     }
@@ -45,11 +48,22 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }, 10);
   });
 
+  const fetchSession = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/session`, {
+        withCredentials: true, // สำคัญมาก เพื่อให้ส่ง session cookie
+      });
+      setRole(response.data.role);
+      console.log(response.data.role);
+    } catch (error) {
+      console.error("Failed to fetch session", error);
+    }
+  };
+
   const login = async (email: string, password: string) => {
-    console.log("log in");
+    console.log(`${API_URL}/login`);
     setIsLoading(true);
     try {
-      console.log("0");
       const response = await axios.post(`${API_URL}/login`, {
         email,
         password,
@@ -58,6 +72,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         Cookies.set("authToken", response.data.token, { expires: 7 });
         toast.success("Login successful");
         setAuthToken(response.data.token);
+        await fetchSession();
         router.push("/");
       } else {
         toast.error("Invalid login details");
@@ -100,7 +115,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AppContext.Provider
-      value={{ login, register, isLoading, authToken, logout }}
+      value={{ login, register, isLoading, authToken, role, logout }}
     >
       {isLoading ? <Loader /> : children}
     </AppContext.Provider>

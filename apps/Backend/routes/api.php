@@ -9,19 +9,21 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\CheckRole;
-use App\Http\Controllers\SessionController;
-
-Route::get('/getAllSession', [SessionController::class, 'getAllSession']);
+use Illuminate\Support\Facades\Session;
 
 use App\Http\Controllers\TestController;
 Route::get('/hello', function () {
     return response()->json(['message' => 'hello']);
 });
 
-Route::middleware('web')->group(function () {
-    Route::post("login", [AuthController::class, "login"]);
+Route::get('/session', function (Request $request) {
+    return response()->json([
+        'role' => Session::get('user_role(session)'),
+        'user_id' => Session::get('user_id(session)'),
+    ]);
 });
 
+Route::post("login", [AuthController::class, "login"]);
 Route::post("register", [AuthController::class, "register"]);
 Route::get("profile", [AuthController::class, "profile"]);
 Route::apiResource("products", ProductController::class);
