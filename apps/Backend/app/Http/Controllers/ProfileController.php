@@ -8,7 +8,7 @@ use App\Models\User;
 
 class ProfileController extends Controller
 {
-    // ✅ ดึงข้อมูลโปรไฟล์ของ user ที่ล็อกอิน
+    // ดึงข้อมูลโปรไฟล์ของ user ที่ล็อกอิน
     public function show(Request $request)
     {
         return response()->json([
@@ -16,7 +16,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    // ✅ อัปเดตข้อมูลโปรไฟล์
+    // อัปเดตข้อมูลโปรไฟล์
     public function update(Request $request)
     {
         $user = $request->user();
