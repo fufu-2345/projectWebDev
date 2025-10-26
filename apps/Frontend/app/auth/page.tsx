@@ -30,7 +30,7 @@ const Auth: React.FC = () => {
 
   useEffect(() => {
     if (authToken) {
-      router.push("/dashboard");
+      router.push("/");
       return;
     }
   }, [authToken, isLoading]);

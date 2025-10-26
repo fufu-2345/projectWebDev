@@ -49,15 +49,16 @@ const Dashboard: React.FC = () => {
   // List all products
   const fetchGraph = async () => {
     try {
-      // const response = await axios.get(
-      //   `${process.env.NEXT_PUBLIC_API_URL}/products`,
-      //   {
-      //     params: { category: categories },
-      //     headers: {
-      //       Authorization: `Bearer ${authToken}`,
-      //     },
-      //   }
-      // );
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/products`,
+        {
+          params: { category: categories },
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -94,19 +95,23 @@ const Dashboard: React.FC = () => {
         <option value="product">Product</option>
       </select>
 
-      <select
-        className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-        value={categories}
-        onChange={handleOptionChange}
-      >
-        <option value={Category.All}>All Product</option>
-        <option value={Category.Pencil}>Pencil</option>
-        <option value={Category.Eraser}>Eraser</option>
-        <option value={Category.Ruler}>Ruler</option>
-        <option value={Category.Pen}>Pen</option>
-        <option value={Category.Liquid}>Liquid</option>
-        <option value={Category.Paint}>Paint</option>
-      </select>
+      {baseOn === "product" && (
+        <>
+          <select
+            className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+            value={categories}
+            onChange={handleOptionChange}
+          >
+            <option value={Category.All}>All Product</option>
+            <option value={Category.Pencil}>Pencil</option>
+            <option value={Category.Eraser}>Eraser</option>
+            <option value={Category.Ruler}>Ruler</option>
+            <option value={Category.Pen}>Pen</option>
+            <option value={Category.Liquid}>Liquid</option>
+            <option value={Category.Paint}>Paint</option>
+          </select>
+        </>
+      )}
       <div
         onClick={() => {
           console.log(graph, baseOn);
