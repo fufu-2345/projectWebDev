@@ -9,7 +9,7 @@ export default function Page() {
   const [form, setForm] = useState({ name: "", address: "", phone: "", birthday: "" });
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false); // ✅ ควบคุม edit mode
+  const [isEditing, setIsEditing] = useState(false); 
 
   // ดึงข้อมูลโปรไฟล์
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function Page() {
       if (result.user) {
         setUser(result.user);
         setPreview(null);
-        setIsEditing(false); // ✅ กลับไป view mode หลังบันทึก
+        setIsEditing(false); 
         alert("Profile updated successfully!");
       }
     } catch (err) {
