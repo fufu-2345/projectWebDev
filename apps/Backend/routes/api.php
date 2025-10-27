@@ -45,6 +45,7 @@ Route::group([
     Route::get("logout", [AuthController::class, "logout"]);
     Route::get("users", [UserController::class, "showUser"]);
     Route::get("promotions", [PromotionController::class, "index"]);
+    Route::post("updatePromotions", [PromotionController::class, "update"]);
     Route::get("updatePro", [PromotionController::class, "update"]);
 
     // Route::apiResource("products", ProductController::class);

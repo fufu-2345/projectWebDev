@@ -29,20 +29,17 @@ class PromotionController extends Controller
 
     public function update(Request $request)
     {
-        $data = $request -> validate([
-            "title" => "required"
+        log::info('promotion/update');
+        $data = $request->validate([
+            'promotions' => 'required|array',
+            'promotions.*.id' => 'required|integer|exists:promotions,id',
+            'promotions.*.discount' => 'required|numeric|min:0|max:100',
         ]);
-        $category = isset($request->category) ? $request->category : $product->category;
-        $data["cost"] = isset($request->cost) ? $request->cost : $product->cost;
 
-        if($request->hasFile("banner_image")){
-            if($product->banner_image){
-                Storage::disk("public")->delete($product->banner_image);
-            }
-
-            $data["banner_image"] = $request->file("banner_image")->store("products","public");
+        foreach ($data['promotions'] as $promotionData) {
+            \App\Models\Promotion::where('id', $promotionData['id'])
+                ->update(['discount' => $promotionData['discount']]);
         }
-        $promotion->update($data);
 
         return response()->json([
             "status" => true,
