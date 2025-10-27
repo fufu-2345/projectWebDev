@@ -51,23 +51,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchSession = async () => {
     try {
       const response = await axios.get(`${API_URL}/session`, {
-        withCredentials: true, // สำคัญมาก เพื่อให้ส่ง session cookie
+        withCredentials: true,
       });
       setRole(response.data.role);
-      console.log(response.data.role);
+      console.log("role", response.data.role);
     } catch (error) {
       console.error("Failed to fetch session", error);
     }
   };
 
   const login = async (email: string, password: string) => {
-    console.log(`${API_URL}/login`);
     setIsLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${API_URL}/login`,
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
       if (response.data.status) {
         Cookies.set("authToken", response.data.token, { expires: 7 });
         toast.success("Login successful");

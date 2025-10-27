@@ -3,27 +3,32 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\CheckRole;
-use Illuminate\Support\Facades\Session;
 
 use App\Http\Controllers\TestController;
 Route::get('/hello', function () {
     return response()->json(['message' => 'hello']);
 });
 
-Route::get('/session', function (Request $request) {
-    return response()->json([
-        'role' => Session::get('user_role(session)'),
-        'user_id' => Session::get('user_id(session)'),
-    ]);
+Route::middleware('web')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+
+    Route::get('/session', function () {
+        return response()->json([
+            'role' => Session::get('user_role'),
+            'id' => Session::get('user_id'),
+            'session_id' => Session::getId()
+        ]);
+    });
 });
 
-Route::post("login", [AuthController::class, "login"]);
+
 Route::post("register", [AuthController::class, "register"]);
 Route::get("profile", [AuthController::class, "profile"]);
 Route::apiResource("products", ProductController::class);
@@ -33,7 +38,6 @@ Route::get("getShippingOrders", [AdminController::class, "getShippingOrders"]);
 Route::get("getCategorySummary", [AdminController::class, "getCategorySummary"]);
 Route::get("getUserOrderSummary", [AdminController::class, "getUserOrderSummary"]);
 Route::get("getProductSummary", [AdminController::class, "getProductSummary"]);
-
 
 // ใน group คือพวกที่ต้อง login แล้วเท่านั้น
 // ถ้าใครจะทดสอบ api ใน postman ให้ลองข้างนอก

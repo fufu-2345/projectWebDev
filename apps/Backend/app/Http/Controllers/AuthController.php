@@ -45,11 +45,13 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-        //$user->createToken("myToken")->plainTextToken;
         $token = $user->createToken("myToken")->plainTextToken;
 
-        Session::put('user_role(session)', $user->role);
-        Session::put('user_id(session)', $user->id);
+        Session::put('user_role', $user->role);
+        Session::put('user_id', $user->id);
+
+        Log::info('Session ID: ' . Session::getId());
+        Log::info('Stored role: ' . Session::get('user_role'));
 
         return response()->json([
             "status" => true,

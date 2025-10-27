@@ -1,14 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return 'hello';
 });
 
-Route::middleware('web')->get('/get-role', function () {
-    return response()->json([
-        'role' => session('user_role'),
-        'id' => session('user_id')
-    ]);
+Route::middleware('web')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/session', [AuthController::class, 'getSession']);
 });
