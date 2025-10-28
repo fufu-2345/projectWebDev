@@ -60,17 +60,34 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:8000",
+    withCredentials: true,
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+    },
+  });
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        `${API_URL}/login`,
-        {
-          email,
-          password,
-        },
-        { withCredentials: true }
+      await axiosInstance.get("/sanctum/csrf-cookie");
+
+      const token = decodeURIComponent(
+        document.cookie
+          .split("; ")
+          .find((c) => c.startsWith("XSRF-TOKEN="))
+          ?.split("=")[1] || ""
       );
+
+      const response = await axiosInstance.post(
+        "/api/login",
+        { email, password },
+        {
+          headers: { "X-XSRF-TOKEN": token },
+        }
+      );
+
       if (response.data.status) {
         Cookies.set("authToken", response.data.token, { expires: 7 });
         toast.success("Login successful");
@@ -81,7 +98,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         toast.error("Invalid login details");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      toast.error("Login failed");
     } finally {
       setIsLoading(false);
     }

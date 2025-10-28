@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -16,7 +18,14 @@ Route::get('/hello', function () {
     return response()->json(['message' => 'hello']);
 });
 
-Route::middleware('web')->group(function () {
+Route::get('/sanctum/csrf-cookie', [CsrfCookieController::class, 'show']);
+
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['csrf_token' => csrf_token()])
+        ->withCookie(cookie('XSRF-TOKEN', csrf_token(), 120));
+});
+
+Route::middleware(['web'])->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 
     Route::get('/session', function () {
@@ -27,7 +36,6 @@ Route::middleware('web')->group(function () {
         ]);
     });
 });
-
 
 Route::post("register", [AuthController::class, "register"]);
 Route::get("profile", [AuthController::class, "profile"]);

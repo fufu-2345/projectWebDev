@@ -7,8 +7,3 @@ use App\Http\Controllers\AuthController;
 Route::get('/', function () {
     return 'hello';
 });
-
-Route::middleware('web')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/session', [AuthController::class, 'getSession']);
-});
