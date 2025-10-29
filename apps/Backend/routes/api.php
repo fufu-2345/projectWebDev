@@ -3,68 +3,67 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\AdminController;
-use App\Http\Middleware\CheckRole;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CartController;
 
-use App\Http\Controllers\TestController;
-Route::get('/hello', function () {
-    return response()->json(['message' => 'hello']);
-});
+// -------- Public (ไม่ต้อง login) --------
+Route::get('/hello', fn () => response()->json(['message' => 'hello']));
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login',    [AuthController::class, 'login']);
+// ถ้าอยากให้ profile เป็น private ให้ย้ายไปอยู่ในกลุ่ม auth ด้านล่าง
+// Route::get('profile', [AuthController::class, 'profile']); // (ไม่แนะนำให้เปิด public)
+Route::apiResource('products', ProductController::class)->only(['index','show']);
 
-Route::post("register", [AuthController::class, "register"]);
-Route::post("login", [AuthController::class, "login"]);
-Route::get("profile", [AuthController::class, "profile"]);
-Route::apiResource("products", ProductController::class);
+// -------- Authenticated (ต้อง login) --------
+Route::middleware(['auth:sanctum'])->group(function () {
 
-/*  ส่งความคืบหน้าครั้งที่ 2
-Route::get("getShippingOrders", [AdminController::class, "getShippingOrders"]);
-Route::get("getCategorySummary", [AdminController::class, "getCategorySummary"]);
-Route::get("getUserOrderSummary", [AdminController::class, "getUserOrderSummary"]);
-Route::get("getProductSummary", [AdminController::class, "getProductSummary"]);
-*/
+    // Current user info (ให้ FE ใช้ endpoint นี้)
+    Route::get('me', function (Request $request) {
+        $u = $request->user();
+        return response()->json([
+            'id'   => $u->id,
+            'name' => $u->name,
+            'role' => $u->role ?? 'user',
+        ]);
+    });
 
-// ใน group คือพวกที่ต้อง login แล้วเท่านั้น
-// ถ้าใครจะทดสอบ api ใน postman ให้ลองข้างนอก
-// หรือ api ที่ใช้งานตอนยังไม่ได้ login ให้ใส่ข้างนอกหมดเลย เหมือน /hello register login ข้างบน
-Route::group([
-    "middleware" => ["auth:sanctum"]
-], function(){
-    Route::get("profile", [AuthController::class, "profile"]);
-    Route::get("logout", [AuthController::class, "logout"]);
-    Route::get("users", [UserController::class, "showUser"]);
-    Route::get("promotions", [PromotionController::class, "index"]);
-    Route::get("updatePro", [PromotionController::class, "update"]);
+    // ถ้าต้องการ profile แบบละเอียดและเป็น private
+    Route::get('profile', [AuthController::class, 'profile']);
 
-    // Route::apiResource("products", ProductController::class);
-    // Route::get('admin-test', [AdminController::class, 'test']);
-});
+    // ออกจากระบบ
+    Route::get('logout', [AuthController::class, 'logout']);
 
+    // Users/Promotions (ตัวอย่าง)
+    Route::get('users',       [UserController::class, 'showUser']);
+    Route::get('promotions',  [PromotionController::class, 'index']);
+    Route::get('updatePro',   [PromotionController::class, 'update']);
 
-Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
-    Log::info("admin");
-    Route::get('admin-test', [AdminController::class, 'test']);
-});
+    // Orders (ของผู้ใช้ที่ล็อกอิน)
+    Route::get(  'orders',         [OrderController::class, 'index']);
+    Route::patch('orders/{order}', [OrderController::class, 'updateStatus']); // body: {status}
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
+    Route::get('orders/{order}/products', [OrderController::class, 'products']);
 
-
-use App\Http\Controllers\DetailProductController ;
-Route::get('/products/{productId}/detail',[DetailProductController::class,'show']);
-
-
-use App\Http\Controllers\CartController ;
-Route::group([
-    'middleware' => ['auth:sanctum']
-], function() {
-    Route::prefix('cart')->group(function(){
-        Route::post('/add', [CartController::class, 'addToCart']);
-        Route::get('/', [CartController::class, 'getCart']);
+    // Cart
+    Route::prefix('cart')->group(function () {
+        Route::post('/add',      [CartController::class, 'addToCart']);
+        Route::get( '/',         [CartController::class, 'getCart']);
         Route::post('/checkout', [CartController::class, 'checkout']);
     });
 });
+
+// -------- Admin only --------
+Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
+    Log::info('admin');
+    Route::get('admin-test', [AdminController::class, 'test']);
+});
+
+// -------- Product detail by id (public) --------
+use App\Http\Controllers\DetailProductController;
+Route::get('/products/{productId}/detail', [DetailProductController::class, 'show']);

@@ -4,21 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class order extends Model
+class Order extends Model
 {
-    protected $fillable =[
-        "datetime",
-        "totalprice",
-        "order_datetime",
-        "promotion",
-        "status",
-        "order_status",
-        "user_id"
+    protected $fillable = [
+        'product',      // JSON string
+        'datetime',
+        'totalprice',
+        'promotion',
+        'status',       // enum: in cart|wait|payment|shipping|complete
+        'user_id',
     ];
 
+    protected $casts = [
+        'datetime' => 'datetime',
+        'product'  => 'array',   // เก็บใน TEXT/JSON ก็ cast เป็น array ให้ frontend ใช้ง่าย
+    ];
 
-    public function items()
+    public function user()
     {
-        return $this->hasMany(Item::class);
+        return $this->belongsTo(User::class);
     }
 }
