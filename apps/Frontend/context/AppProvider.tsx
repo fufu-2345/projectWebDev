@@ -1,3 +1,4 @@
+// apps/Frontend/context/AppProvider.tsx
 "use client";
 
 import Loader from "@/components/Loader";
@@ -28,7 +29,7 @@ interface AppProviderType {
 
 const AppContext = createContext<AppProviderType | undefined>(undefined);
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`; // e.g. http://127.0.0.1:8000/api
-const ME_ENDPOINT = `${API_URL}/me`;                   // backend ควรคืน { id, name, role }
+const ME_ENDPOINT = `${API_URL}/me`;                   // ✅ ใช้ endpoint เดียวชัดเจน
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -45,43 +46,59 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [authToken]);
 
-  // โหลดสถานะเริ่มต้นจาก cookie และยืนยัน role จากตาราง users ผ่าน /me
+  // โหลดสถานะเริ่มต้นจาก cookie แล้วตรวจผู้ใช้ผ่าน /me
   useEffect(() => {
     const token = Cookies.get("authToken") || null;
     const cookieRole = (Cookies.get("role") || "").toLowerCase();
 
-    if (token) {
-      setAuthToken(token);
-      if (cookieRole === Role.Admin || cookieRole === Role.User) {
-        setRole(cookieRole as Role);
-      }
+    if (!token) {
+      setIsLoading(false);
+      router.push("/auth");
+      return;
+    }
 
-      (async () => {
-        try {
-          const res = await axios.get(ME_ENDPOINT, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+    setAuthToken(token);
+
+    // ใช้ role จาก cookie ชั่วคราวเพื่อ UX ลื่นขึ้น
+    if (cookieRole === Role.Admin || cookieRole === Role.User) {
+      setRole(cookieRole as Role);
+    }
+
+    (async () => {
+      try {
+        const res = await axios.get(ME_ENDPOINT, {
+          headers: { Authorization: `Bearer ${token}` },
+          validateStatus: () => true, // เราจะตัดสินใจเอง
+        });
+
+        if (res.status === 200 && res.data) {
           const serverRole = String(res.data?.role || "").toLowerCase();
           if (serverRole === Role.Admin || serverRole === Role.User) {
             setRole(serverRole as Role);
             Cookies.set("role", serverRole, { expires: 7 });
           }
-        } catch {
-          // token เสีย/หมดอายุ → ล้างแล้วส่งไปหน้า auth
+          setIsLoading(false);
+          return;
+        }
+
+        if (res.status === 401) {
+          // token หมดอายุ/ไม่ถูกต้อง → ล้างแล้วไป login
           Cookies.remove("authToken");
           Cookies.remove("role");
           setAuthToken(null);
           setRole(Role.User);
-          router.push("/auth");
-        } finally {
           setIsLoading(false);
+          router.push("/auth");
+          return;
         }
-      })();
-    } else {
-      setIsLoading(false);
-      router.push("/auth");
-    }
-    // รันครั้งเดียวตอน mount
+
+        // กรณี /me ไม่เปิดใช้งาน (404/5xx) — ไม่ดีดผู้ใช้ออก แต่หยุด loading
+        setIsLoading(false);
+      } catch {
+        // network error → ไม่ดีดผู้ใช้ออกเช่นกัน
+        setIsLoading(false);
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
@@ -145,9 +162,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const value = useMemo<AppProviderType>(
     () => ({ login, register, isLoading, authToken, role, logout }),
-    // login/register เป็นฟังก์ชันที่ประกาศใน component นี้
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoading, authToken, role]
+    [isLoading, authToken, role] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return (

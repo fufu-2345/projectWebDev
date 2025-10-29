@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { myAppHook } from "@/context/AppProvider";
 
 export default function Page() {
@@ -85,6 +86,15 @@ export default function Page() {
   return (
     <div className="p-6 max-w-lg mx-auto">
       <h1 className="text-2xl font-bold mb-4 text-center">Profile of {user.name}</h1>
+
+      {/* 🆕 ปุ่มไปหน้า orders */}
+        <Link
+          href="/orders"
+          className="inline-flex items-center gap-2 rounded-full bg-gray-900 text-white px-4 py-2 hover:bg-gray-800 transition"
+          aria-label="ไปหน้าประวัติการสั่งซื้อ"
+        >
+          ดูประวัติการสั่งซื้อ
+        </Link>
 
       <div className="flex flex-col items-center mb-4">
         <img
