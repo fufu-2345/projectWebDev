@@ -13,7 +13,7 @@ interface formData {
 }
 
 const Promotion: React.FC = () => {
-  const { isLoading, authToken } = myAppHook();
+  const { isLoading, authToken, role } = myAppHook();
   const router = useRouter();
   const [formData, setFormData] = useState<formData[]>([]);
 
@@ -22,12 +22,11 @@ const Promotion: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!authToken) {
-      router.push("/auth");
-      return;
+    if (!authToken || role === "user") {
+      router.back();
     }
     fetchData();
-  }, [authToken]);
+  }, [authToken, role]);
 
   const fetchData = async () => {
     try {
@@ -47,21 +46,22 @@ const Promotion: React.FC = () => {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(formData);
-    try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/updatePromotions`,
-        { promotions: formData },
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-      toast.success("Updated successfully");
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to update");
+    if (role === "admin") {
+      try {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/updatePromotions`,
+          { promotions: formData },
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        toast.success("Updated successfully");
+      } catch (error) {
+        console.log(error);
+        toast.error("Failed to update");
+      }
     }
   };
 
@@ -72,10 +72,6 @@ const Promotion: React.FC = () => {
     const newFormData = [...formData];
     newFormData[index].discount = parseInt(event.target.value) || 0;
     setFormData(newFormData);
-  };
-
-  const valueChecker = (index: number): number => {
-    return formData[index]?.discount ?? 0;
   };
 
   return (

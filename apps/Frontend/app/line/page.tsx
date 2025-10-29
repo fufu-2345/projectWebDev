@@ -29,12 +29,11 @@ const Dashboard: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!authToken) {
-      router.push("/auth");
-      return;
+    if (!authToken || role === "user") {
+      router.back();
     }
     fetchGraph();
-  }, [authToken]);
+  }, [authToken, role]);
 
   interface ProductType {
     id?: number;
