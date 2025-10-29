@@ -4,17 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class order extends Model
+class Order extends Model
 {
-    protected $fillable =[
-        "datetime",
-        "totalprice",
-        "order_datetime",
-        "promotion",
-        "status",
-        "order_status",
-        "user_id"
-    ];
+   protected $fillable = [
+    "totalprice",
+    "promotion",
+    "status",
+    "user_id"
+];
 
 
     public function items()

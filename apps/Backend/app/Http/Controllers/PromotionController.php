@@ -27,6 +27,7 @@ class PromotionController extends Controller
         ]);
     }
 
+    /*public function update(Request $request, Product $product)
     public function update(Request $request)
     {
         $data = $request -> validate([
@@ -48,6 +49,6 @@ class PromotionController extends Controller
             "status" => true,
             "message" => "Product data updated"
         ]);
-    }
+    }*/
 
 }

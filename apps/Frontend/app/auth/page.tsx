@@ -48,7 +48,7 @@ const Auth: React.FC = () => {
     if (isLogin) {
       try {
         await login(formData.email, formData.password);
-        localStorage.setItem("token", token);
+        
       } catch (error) {
         console.log(`Authentication Error ${error}`);
       }
