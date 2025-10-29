@@ -64,13 +64,19 @@ use App\Http\Controllers\DetailProductController ;
 Route::get('/products/{productId}/detail',[DetailProductController::class,'show']);
 
 
-use App\Http\Controllers\CartController ;
-Route::group([
-    'middleware' => ['auth:sanctum']
-], function() {
+use App\Http\Controllers\CartController;
+
+Route::middleware(['auth:sanctum'])->group(function() {
     Route::prefix('cart')->group(function(){
-        Route::post('/add', [CartController::class, 'addToCart']);
         Route::get('/', [CartController::class, 'getCart']);
+        Route::post('/add', [CartController::class, 'addToCart']);
+        Route::post('/update', [CartController::class, 'updateQuantity']);
+        Route::post('/delete', [CartController::class, 'deleteItem']);
         Route::post('/checkout', [CartController::class, 'checkout']);
     });
 });
+
+
+
+
+

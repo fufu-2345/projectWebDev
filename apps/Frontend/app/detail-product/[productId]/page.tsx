@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { myAppHook } from "@/context/AppProvider";
 
@@ -15,11 +15,11 @@ interface Product {
 }
 
 interface Props {
-  params: Promise<{ productId: string }>;
+  params: { productId: string };
 }
 
 const Page: React.FC<Props> = ({ params }) => {
-  const { productId } = use(params);
+  const { productId } = params;
   const router = useRouter();
   const { authToken } = myAppHook();
 
@@ -28,19 +28,21 @@ const Page: React.FC<Props> = ({ params }) => {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch(`http://localhost:8000/api/products/${productId}/detail`);
-        const data = await res.json();
-        if (data.statys) setProduct(data.product);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [productId]);
+  const fetchData = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/products/${productId}/detail`);
+      const data = await res.json();
+      console.log("Fetched product:", data);
+      // setProduct แบบตรงๆ ไม่เช็ค status เผื่อ backend ไม่มี status
+      setProduct(data.product || null);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, [productId]);
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -113,7 +115,7 @@ const Page: React.FC<Props> = ({ params }) => {
         <div className="md:w-1/2 flex justify-center items-center">
           {product.banner_image ? (
             <img
-              src={product.banner_image}
+              src={`http://localhost:8000${product.banner_image}`} // ✅ เผื่อ backend ส่ง path
               alt={product.title}
               className="rounded-lg max-h-96 object-contain"
             />
@@ -168,7 +170,7 @@ const Page: React.FC<Props> = ({ params }) => {
             <div className="flex gap-4">
               <button
                 onClick={handleAddToCart}
-                disabled={quantity > product.stock} // ปิดปุ่มถ้าเกิน stock
+                disabled={quantity > product.stock}
                 className={`px-4 py-2 rounded-md text-white transition ${
                   quantity > product.stock
                     ? "bg-gray-400 cursor-not-allowed"
