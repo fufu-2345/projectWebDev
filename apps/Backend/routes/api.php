@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Users/Promotions (ตัวอย่าง)
     Route::get('users',       [UserController::class, 'showUser']);
-    Route::get('promotions',  [PromotionController::class, 'index']);
+    
     Route::get('updatePro',   [PromotionController::class, 'update']);
 
     // Orders (ของผู้ใช้ที่ล็อกอิน)
@@ -67,3 +67,5 @@ Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
 // -------- Product detail by id (public) --------
 use App\Http\Controllers\DetailProductController;
 Route::get('/products/{productId}/detail', [DetailProductController::class, 'show']);
+
+Route::get('promotions',  [PromotionController::class, 'index']);

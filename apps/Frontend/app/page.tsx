@@ -1,56 +1,141 @@
 "use client";
 
 import Link from "next/link";
-import { myAppHook, Role } from "@/context/AppProvider"; // <- ใช้ role จาก context
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { myAppHook, Role } from "@/context/AppProvider";
 
 type Category = { id: string; name: string };
+type Promotion = { id: number; discount?: number; created_at?: string; updated_at?: string };
 
 const categories: Category[] = [
-  { id: "pen",   name: "ปากกา" },
+  { id: "pen", name: "ปากกา" },
   { id: "pencil", name: "ดินสอ" },
   { id: "eraser", name: "ยางลบ" },
-  { id: "ruler",  name: "ไม้บรรทัด" },
+  { id: "ruler", name: "ไม้บรรทัด" },
   { id: "marker", name: "ปากกาเมจิก" },
   { id: "liquid", name: "ลิควิด" },
 ];
 
+// รูปจาก public/img-cate
 const FILES: Record<string, string | null> = {
-  pen:   "pen.jpg",
+  pen: "pen.jpg",
   pencil: "pensil.jpg",
   eraser: "staedtler.jpg",
-  ruler:  "ruler.jpg",
+  ruler: "ruler.jpg",
   marker: "magicpen.jpg",
   liquid: "liquid.jpg",
 };
 
-const ORIGIN =
-  (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "") || "";
+const API = process.env.NEXT_PUBLIC_API_URL || ""; // e.g. http://localhost:8000/api
 
-function imgUrl(cateId: string) {
+function localImg(cateId: string) {
   const f = FILES[cateId];
-  return f ? `${ORIGIN}/storage/product/${f}` : null;
+  return f ? `/img-cate/${f}` : null;
+}
+
+// ข้อความโปรโมชันตาม id
+function promoLabel(p: Promotion, percent: number) {
+  if (p.id === 1) return `โปรโมชั่น ซื้อ 2 รับส่วนลด ${percent}%`;
+  if (p.id === 2) return `โปรโมชั่นเลขวันตรงกับเดือน รับส่วนลด ${percent}%`;
+  if (p.id === 3) return `โปรโมชั่น 1 แถม 1`;
+  return `ลด ${percent}%`;
 }
 
 export default function CatePage() {
-  const { role, isLoading } = myAppHook();
+  const { role, authToken } = myAppHook();
   const isAdmin = role === Role.Admin;
+
+  const [promos, setPromos] = useState<Promotion[]>([]);
+  const [promoLoading, setPromoLoading] = useState<boolean>(true);
+  const [promoErr, setPromoErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let aborted = false;
+    (async () => {
+      try {
+        setPromoLoading(true);
+        setPromoErr(null);
+        const res = await fetch(`${API}/promotions`, {
+          headers: {
+            Accept: "application/json",
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          },
+          cache: "no-store",
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.message || `HTTP ${res.status}`);
+        const list: Promotion[] =
+          (Array.isArray(data?.promotion) && data.promotion) ||
+          (Array.isArray(data?.promotions) && data.promotions) ||
+          (Array.isArray(data?.data) && data.data) ||
+          [];
+        if (!aborted) setPromos(list);
+      } catch (e: any) {
+        if (!aborted) setPromoErr(e?.message || "โหลดโปรโมชันไม่สำเร็จ");
+      } finally {
+        if (!aborted) setPromoLoading(false);
+      }
+    })();
+    return () => { aborted = true; };
+  }, [authToken]);
 
   return (
     <>
-      {/* PROMOTION — ซ่อนเมื่อเป็น admin; ระหว่างโหลด role ให้ยังไม่แสดง (กันกระพริบ) */}
-      {!isLoading && !isAdmin && (
+      {/* PROMOTION — แสดงเสมอ (แม้ยังไม่ล็อกอิน) ยกเว้นเป็น admin */}
+      {!isAdmin && (
         <section className="w-full">
-          {/* มือถือ: 1 คอลัมน์ | ≥640px: 3 คอลัมน์ */}
           <div className="grid grid-cols-1 sm:grid-cols-3">
-            <div className="order-1 sm:order-none bg-gray-200 py-8 sm:py-12 text-center text-2xl sm:text-3xl font-semibold uppercase">
-              PROMOTION
-            </div>
-            <div className="order-2 sm:order-none bg-gray-300 py-8 sm:py-12 text-center text-2xl sm:text-3xl font-semibold uppercase">
-              PROMOTION
-            </div>
-            <div className="order-3 sm:order-none bg-gray-200 py-8 sm:py-12 text-center text-2xl sm:text-3xl font-semibold uppercase">
-              PROMOTION
-            </div>
+            {promoLoading ? (
+              [0, 1, 2].map((i) => (
+                <div key={`sk-${i}`} className="py-8 sm:py-12 text-center">
+                  <div className="mx-4 rounded-2xl bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse h-24 sm:h-28" />
+                </div>
+              ))
+            ) : promoErr ? (
+              <div className="col-span-1 sm:col-span-3 py-6 text-center text-sm text-red-600">
+                {promoErr}
+              </div>
+            ) : (
+              // ให้มี 3 ช่องเสมอ
+              Array.from({ length: 3 }).map((_, idx) => {
+                const p = promos[idx];
+
+                // ถ้าไม่มีข้อมูลโปรโมชัน → ช่องเทา PROMOTION
+                if (!p) {
+                  return (
+                    <div
+                      key={`empty-${idx}`}
+                      className="py-8 sm:py-12 text-center uppercase bg-gray-200"
+                    >
+                      <span className="font-semibold text-xl sm:text-2xl tracking-wide">
+                        PROMOTION
+                      </span>
+                    </div>
+                  );
+                }
+
+                const percent =
+                  typeof p.discount === "number" && !Number.isNaN(p.discount)
+                    ? Math.round(Number(p.discount))
+                    : 0;
+
+                // พื้นหลัง: id=1 และ id=3 ใช้โทนเหลืองเหมือนกัน
+                const bgClass =
+                  p.id === 1 || p.id === 3
+                    ? "bg-gradient-to-br from-yellow-100 to-yellow-300"
+                    : "bg-gradient-to-br from-orange-100 to-orange-300";
+
+                return (
+                  <div
+                    key={p.id}
+                    className={`py-6 sm:py-10 text-center text-xl sm:text-2xl font-semibold ${bgClass} shadow-md`}
+                  >
+                    {promoLabel(p, percent)}
+                  </div>
+                );
+              })
+            )}
           </div>
         </section>
       )}
@@ -61,7 +146,7 @@ export default function CatePage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 justify-items-center">
           {categories.map((c) => {
-            const url = imgUrl(c.id);
+            const url = localImg(c.id);
             return (
               <Link
                 key={c.id}
@@ -72,11 +157,13 @@ export default function CatePage() {
               >
                 <div className="mb-3 grid place-items-center rounded-2xl bg-gray-100 overflow-hidden w-28 h-28 sm:w-36 sm:h-36">
                   {url ? (
-                    <img
+                    <Image
                       src={url}
                       alt={c.name}
+                      width={240}
+                      height={240}
                       className="w-full h-full object-cover"
-                      loading="lazy"
+                      priority={false}
                     />
                   ) : (
                     <span className="text-xs text-gray-400">IMG</span>

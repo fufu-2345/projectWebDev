@@ -210,7 +210,7 @@ export default function OrdersPage() {
           onClick={() => changeStatus(o.id, "success")}
           className="px-3 py-1 rounded-md bg-emerald-600 text-white hover:bg-emerald-700"
         >
-          ยืนยันการจัดส่ง
+          ยืนยันการรับสินค้า
         </button>
       );
     }
