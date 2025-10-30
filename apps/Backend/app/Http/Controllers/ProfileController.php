@@ -8,7 +8,7 @@ use App\Models\User;
 
 class ProfileController extends Controller
 {
-    // ดึงข้อมูลโปรไฟล์ของ user ที่ล็อกอิน
+    // get user profile
     public function show(Request $request)
     {
         return response()->json([
@@ -16,12 +16,11 @@ class ProfileController extends Controller
         ]);
     }
 
-    // อัปเดตข้อมูลโปรไฟล์
+    // update
     public function update(Request $request)
     {
         $user = $request->user();
 
-        // ตรวจสอบความถูกต้องของข้อมูลที่ส่งมา
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|email',
@@ -31,22 +30,15 @@ class ProfileController extends Controller
             'profilepic' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // ถ้ามีการอัปโหลดรูปใหม่
         if ($request->hasFile('profilepic')) {
-            // ถ้ามีรูปเก่าอยู่ ลบออกก่อน
             if ($user->profilepic && Storage::disk('public')->exists($user->profilepic)) {
                 Storage::disk('public')->delete($user->profilepic);
             }
-
-            // บันทึกรูปใหม่ในโฟลเดอร์ storage/app/public/products
             $path = $request->file('profilepic')->store('profile_pics', 'public');
             $validated['profilepic'] = $path;
         }
-
-        // อัปเดตข้อมูลใน database
         $user->update($validated);
 
-        // ส่งข้อมูลกลับเป็น JSON
         return response()->json([
             'message' => 'Profile updated successfully.',
             'user' => $user

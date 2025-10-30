@@ -6,7 +6,12 @@ import { useEffect, useState } from "react";
 import { myAppHook, Role } from "@/context/AppProvider";
 
 type Category = { id: string; name: string };
-type Promotion = { id: number; discount?: number; created_at?: string; updated_at?: string };
+type Promotion = {
+  id: number;
+  discount?: number;
+  created_at?: string;
+  updated_at?: string;
+};
 
 const categories: Category[] = [
   { id: "pen", name: "ปากกา" },
@@ -77,68 +82,72 @@ export default function CatePage() {
         if (!aborted) setPromoLoading(false);
       }
     })();
-    return () => { aborted = true; };
+    return () => {
+      aborted = true;
+    };
   }, [authToken]);
 
   return (
     <>
-      {/* PROMOTION — แสดงเสมอ (แม้ยังไม่ล็อกอิน) ยกเว้นเป็น admin */}
-      {!isAdmin && (
-        <section className="w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-3">
-            {promoLoading ? (
-              [0, 1, 2].map((i) => (
-                <div key={`sk-${i}`} className="py-8 sm:py-12 text-center">
-                  <div className="mx-4 rounded-2xl bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse h-24 sm:h-28" />
+      <header>
+        {/* PROMOTION — แสดงเสมอ (แม้ยังไม่ล็อกอิน) ยกเว้นเป็น admin */}
+        {!isAdmin && (
+          <section className="w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-3">
+              {promoLoading ? (
+                [0, 1, 2].map((i) => (
+                  <div key={`sk-${i}`} className="py-8 sm:py-12 text-center">
+                    <div className="mx-4 rounded-2xl bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse h-24 sm:h-28" />
+                  </div>
+                ))
+              ) : promoErr ? (
+                <div className="col-span-1 sm:col-span-3 py-6 text-center text-sm text-red-600">
+                  {promoErr}
                 </div>
-              ))
-            ) : promoErr ? (
-              <div className="col-span-1 sm:col-span-3 py-6 text-center text-sm text-red-600">
-                {promoErr}
-              </div>
-            ) : (
-              // ให้มี 3 ช่องเสมอ
-              Array.from({ length: 3 }).map((_, idx) => {
-                const p = promos[idx];
+              ) : (
+                // ให้มี 3 ช่องเสมอ
+                Array.from({ length: 3 }).map((_, idx) => {
+                  const p = promos[idx];
 
-                // ถ้าไม่มีข้อมูลโปรโมชัน → ช่องเทา PROMOTION
-                if (!p) {
+                  // ถ้าไม่มีข้อมูลโปรโมชัน → ช่องเทา PROMOTION
+                  if (!p) {
+                    return (
+                      <div
+                        key={`empty-${idx}`}
+                        className="py-8 sm:py-12 text-center uppercase bg-gray-200"
+                      >
+                        <span className="font-semibold text-xl sm:text-2xl tracking-wide">
+                          PROMOTION
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  const percent =
+                    typeof p.discount === "number" && !Number.isNaN(p.discount)
+                      ? Math.round(Number(p.discount))
+                      : 0;
+
+                  // พื้นหลัง: id=1 และ id=3 ใช้โทนเหลืองเหมือนกัน
+                  const bgClass =
+                    p.id === 1 || p.id === 3
+                      ? "bg-gradient-to-br from-yellow-100 to-yellow-300"
+                      : "bg-gradient-to-br from-orange-100 to-orange-300";
+
                   return (
                     <div
-                      key={`empty-${idx}`}
-                      className="py-8 sm:py-12 text-center uppercase bg-gray-200"
+                      key={p.id}
+                      className={`py-6 sm:py-10 text-center text-xl sm:text-2xl font-semibold ${bgClass} shadow-md`}
                     >
-                      <span className="font-semibold text-xl sm:text-2xl tracking-wide">
-                        PROMOTION
-                      </span>
+                      {promoLabel(p, percent)}
                     </div>
                   );
-                }
-
-                const percent =
-                  typeof p.discount === "number" && !Number.isNaN(p.discount)
-                    ? Math.round(Number(p.discount))
-                    : 0;
-
-                // พื้นหลัง: id=1 และ id=3 ใช้โทนเหลืองเหมือนกัน
-                const bgClass =
-                  p.id === 1 || p.id === 3
-                    ? "bg-gradient-to-br from-yellow-100 to-yellow-300"
-                    : "bg-gradient-to-br from-orange-100 to-orange-300";
-
-                return (
-                  <div
-                    key={p.id}
-                    className={`py-6 sm:py-10 text-center text-xl sm:text-2xl font-semibold ${bgClass} shadow-md`}
-                  >
-                    {promoLabel(p, percent)}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </section>
-      )}
+                })
+              )}
+            </div>
+          </section>
+        )}
+      </header>
 
       {/* CATEGORIES */}
       <main className="mx-auto px-4 py-4">
