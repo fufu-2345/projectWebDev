@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { myAppHook } from "@/context/AppProvider";
+import toast from "react-hot-toast";
 
 interface Product {
   id: number;
@@ -50,7 +51,11 @@ const Page: React.FC = () => {
   }, [authToken]);
 
   // 🔹 เปลี่ยนจำนวนสินค้า
-  const handleQuantityChange = async (itemId: number, newQuantity: number, stock: number) => {
+  const handleQuantityChange = async (
+    itemId: number,
+    newQuantity: number,
+    stock: number
+  ) => {
     if (newQuantity < 1) newQuantity = 1;
     if (newQuantity > stock) newQuantity = stock;
 
@@ -65,10 +70,10 @@ const Page: React.FC = () => {
       });
       const data = await res.json();
       if (data.status) fetchCart();
-      else alert(data.message);
+      else toast.success(data.message);
     } catch (err) {
       console.error(err);
-      alert("Error updating quantity");
+      toast.error("Error updating quantity");
     }
   };
 
@@ -85,20 +90,19 @@ const Page: React.FC = () => {
       });
       const data = await res.json();
       if (data.status) fetchCart();
-      else alert(data.message);
+      else toast.success(data.message);
     } catch (err) {
       console.error(err);
-      alert("Error deleting item");
+      toast.error("Error deleting item");
     }
   };
 
   // 🔹 Checkout
   const handleCheckout = async () => {
     if (!authToken) {
-      alert("Please login first!");
+      toast.error("Please login first!");
       return;
     }
-
     try {
       const res = await fetch("http://localhost:8000/api/cart/checkout", {
         method: "POST",
@@ -111,26 +115,31 @@ const Page: React.FC = () => {
       console.log("Checkout result:", data);
 
       if (data.status) {
-        alert("Order placed successfully! Total: $" + data.totalprice);
+        toast.success("Order placed successfully! Total: $" + data.totalprice);
         setOrder(null);
       } else {
-        alert(data.message);
+        toast.success(data.message);
       }
     } catch (err) {
       console.error(err);
-      alert("Checkout failed!");
+      toast.error("Checkout failed!");
     }
   };
 
   // 🔹 รวมราคาสินค้าทั้งหมด
   const calculateTotal = () =>
-    order?.items?.reduce((acc, item) => acc + item.quantity * item.product.cost, 0) || 0;
+    order?.items?.reduce(
+      (acc, item) => acc + item.quantity * item.product.cost,
+      0
+    ) || 0;
 
   // 🔹 Loading
   if (loading || authLoading)
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-600 animate-pulse text-lg">Loading your cart...</p>
+        <p className="text-gray-600 animate-pulse text-lg">
+          Loading your cart...
+        </p>
       </div>
     );
 
@@ -138,12 +147,14 @@ const Page: React.FC = () => {
   if (!order || !order.items || order.items.length === 0)
     return (
       <div className="flex flex-col items-center justify-center h-[80vh] text-center p-6">
-        <h2 className="text-2xl font-bold text-gray-700 mb-2">Your cart is empty</h2>
+        <h2 className="text-2xl font-bold text-gray-700 mb-2">
+          Your cart is empty
+        </h2>
         <a
           href="/"
           className="px-6 py-3 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
         >
-         Go Shopping
+          Go Shopping
         </a>
       </div>
     );
@@ -151,90 +162,110 @@ const Page: React.FC = () => {
   // 🔹 แสดงรายการสินค้า
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left">
-        Shopping Cart
-      </h1>
+      <header>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left">
+          Shopping Cart
+        </h1>
+      </header>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border border-gray-200 shadow-sm text-sm sm:text-base">
-          <thead>
-            <tr className="bg-gray-100 text-center">
-              <th className="p-3 border">Product</th>
-              <th className="p-3 border">Price</th>
-              <th className="p-3 border">Quantity</th>
-              <th className="p-3 border">Total</th>
-              <th className="p-3 border">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.items.map((item) => (
-              <tr
-                key={item.id}
-                className="text-center hover:bg-gray-50 transition duration-150"
-              >
-                <td className="p-2 sm:p-3 border font-medium">{item.product.title}</td>
-                <td className="p-2 sm:p-3 border">${item.product.cost}</td>
-                <td className="p-2 sm:p-3 border">
-                  <div className="flex items-center justify-center gap-2">
-                    <button
-                      onClick={() =>
-                        handleQuantityChange(item.id, item.quantity - 1, item.product.stock)
-                      }
-                      className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                    >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleQuantityChange(
-                          item.id,
-                          parseInt(e.target.value) || 1,
-                          item.product.stock
-                        )
-                      }
-                      className="w-12 sm:w-16 px-2 py-1 border rounded text-center"
-                    />
-                    <button
-                      onClick={() =>
-                        handleQuantityChange(item.id, item.quantity + 1, item.product.stock)
-                      }
-                      className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Stock: {item.product.stock}</p>
-                </td>
-                <td className="p-2 sm:p-3 border">
-                  ${(item.quantity * item.product.cost).toFixed(2)}
-                </td>
-                <td className="p-2 sm:p-3 border">
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </td>
+      <main>
+        <div className="overflow-x-auto">
+          <table className="w-full border border-gray-200 shadow-sm text-sm sm:text-base">
+            <thead>
+              <tr className="bg-gray-100 text-center">
+                <th className="p-3 border">Product</th>
+                <th className="p-3 border">Price</th>
+                <th className="p-3 border">Quantity</th>
+                <th className="p-3 border">Total</th>
+                <th className="p-3 border">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {order.items.map((item) => (
+                <tr
+                  key={item.id}
+                  className="text-center hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="p-2 sm:p-3 border font-medium">
+                    {item.product.title}
+                  </td>
+                  <td className="p-2 sm:p-3 border">${item.product.cost}</td>
+                  <td className="p-2 sm:p-3 border">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={() =>
+                          handleQuantityChange(
+                            item.id,
+                            item.quantity - 1,
+                            item.product.stock
+                          )
+                        }
+                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        pattern="\d+"
+                        onChange={(e) =>
+                          handleQuantityChange(
+                            item.id,
+                            parseInt(e.target.value) || 1,
+                            item.product.stock
+                          )
+                        }
+                        className="w-12 sm:w-16 px-2 py-1 border rounded text-center"
+                      />
+                      <button
+                        onClick={() =>
+                          handleQuantityChange(
+                            item.id,
+                            item.quantity + 1,
+                            item.product.stock
+                          )
+                        }
+                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Stock: {item.product.stock}
+                    </p>
+                  </td>
+                  <td className="p-2 sm:p-3 border">
+                    ${(item.quantity * item.product.cost).toFixed(2)}
+                  </td>
+                  <td className="p-2 sm:p-3 border">
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <p className="text-xl font-semibold">
-          Total: <span className="text-green-600">${calculateTotal().toFixed(2)}</span>
-        </p>
-        <button
-          onClick={handleCheckout}
-          className="px-6 py-3 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
-        >
-          Checkout
-        </button>
-      </div>
+        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-xl font-semibold">
+            Total:{" "}
+            <span className="text-green-600">
+              ${calculateTotal().toFixed(2)}
+            </span>
+          </p>
+          <button
+            onClick={handleCheckout}
+            className="px-6 py-3 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
+          >
+            Checkout
+          </button>
+        </div>
+      </main>
     </div>
   );
 };

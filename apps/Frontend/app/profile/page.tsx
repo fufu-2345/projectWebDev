@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { myAppHook } from "@/context/AppProvider";
+import toast from "react-hot-toast";
 
 export default function Page() {
   const { authToken, isLoading: authLoading } = myAppHook();
@@ -52,31 +53,39 @@ export default function Page() {
   // 🔹 อัปเดตโปรไฟล์
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authToken) return alert("Please login first");
+    if (!authToken) return toast.error("Please login first");
 
-    const formData = new FormData();
-    formData.append("name", form.name);
-    formData.append("address", form.address);
-    formData.append("phone", form.phone);
-    formData.append("birthday", form.birthday);
-    if (file) formData.append("profilepic", file);
+    const test = /.*/;
+    if (
+      test.test(form.name) &&
+      test.test(form.address) &&
+      test.test(form.phone) &&
+      test.test(form.birthday)
+    ) {
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("address", form.address);
+      formData.append("phone", form.phone);
+      formData.append("birthday", form.birthday);
+      if (file) formData.append("profilepic", file);
 
-    try {
-      const res = await fetch("http://localhost:8000/api/profile", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${authToken}` },
-        body: formData,
-      });
-      const result = await res.json();
-      if (result.user) {
-        setUser(result.user);
-        setPreview(null);
-        setIsEditing(false);
-        alert("Profile updated successfully!");
+      try {
+        const res = await fetch("http://localhost:8000/api/profile", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${authToken}` },
+          body: formData,
+        });
+        const result = await res.json();
+        if (result.user) {
+          setUser(result.user);
+          setPreview(null);
+          setIsEditing(false);
+          toast.success("Profile updated successfully!");
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Update failed");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Update failed");
     }
   };
 
@@ -114,7 +123,7 @@ export default function Page() {
     );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
       <div className="bg-white shadow-md rounded-xl p-6 sm:p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
           Profile of {user.name}
@@ -169,6 +178,7 @@ export default function Page() {
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
+              pattern=".*"
               placeholder="Full Name"
               className="border p-2 w-full rounded focus:ring-2 focus:ring-blue-300 outline-none"
             />
@@ -176,6 +186,7 @@ export default function Page() {
               type="text"
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
+              pattern=".*"
               placeholder="Address"
               className="border p-2 w-full rounded focus:ring-2 focus:ring-blue-300 outline-none"
             />
@@ -183,6 +194,7 @@ export default function Page() {
               type="text"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              pattern=".*"
               placeholder="Phone Number"
               className="border p-2 w-full rounded focus:ring-2 focus:ring-blue-300 outline-none"
             />
@@ -220,6 +232,6 @@ export default function Page() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

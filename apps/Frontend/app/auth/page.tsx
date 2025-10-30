@@ -44,23 +44,26 @@ const Auth: React.FC = () => {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (isLogin) {
-      try {
-        await login(formData.email, formData.password);
-      } catch (error) {
-        console.log(`Authentication Error ${error}`);
-      }
-    } else {
-      try {
-        await register(
-          formData.name!,
-          formData.email,
-          formData.password,
-          formData.password_confirmation!
-        );
-      } catch (error) {
-        console.log(`Authentication Error ${error}`);
+    const test1 = /.+@.{2,}/;
+    const test2 = /.{1,}/;
+    if (test1.test(formData.email) && test2.test(formData.password)) {
+      if (isLogin) {
+        try {
+          await login(formData.email, formData.password);
+        } catch (error) {
+          console.log(`Authentication Error ${error}`);
+        }
+      } else {
+        try {
+          await register(
+            formData.name!,
+            formData.email,
+            formData.password,
+            formData.password_confirmation!
+          );
+        } catch (error) {
+          console.log(`Authentication Error ${error}`);
+        }
       }
     }
   };
@@ -79,6 +82,7 @@ const Auth: React.FC = () => {
                 name="name"
                 type="text"
                 value={formData.name}
+                pattern=".+@.{2,}"
                 onChange={handleOnChangeInput}
                 placeholder="Name"
                 required
@@ -89,6 +93,7 @@ const Auth: React.FC = () => {
               name="email"
               type="email"
               value={formData.email}
+              pattern=".{1,}"
               onChange={handleOnChangeInput}
               placeholder="Email"
               required

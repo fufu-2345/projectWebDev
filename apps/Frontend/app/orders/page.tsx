@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { myAppHook } from "@/context/AppProvider";
+import toast from "react-hot-toast";
 
 type DbStatus =
   | "in cart"
@@ -189,7 +190,7 @@ export default function OrdersPage() {
       }
     } catch (e: any) {
       setOrders(prev);
-      alert(e?.message || "อัปเดตสถานะไม่สำเร็จ");
+      toast.error(e?.message || "อัปเดตสถานะไม่สำเร็จ");
     }
   }
 
@@ -257,105 +258,111 @@ export default function OrdersPage() {
   if (err) return <main className="p-4 text-red-600">{err}</main>;
 
   return (
-    <main className="p-4 sm:p-8">
-      <h1 className="text-2xl font-bold mb-4">ประวัติการสั่งซื้อ</h1>
+    <div className="p-4 sm:p-8">
+      <header>
+        <h1 className="text-2xl font-bold mb-4">ประวัติการสั่งซื้อ</h1>
+      </header>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        <button
-          onClick={() => setTab("payment")}
-          className={`px-4 py-2 rounded-full border ${
-            tab === "payment"
-              ? "bg-gray-900 text-white border-gray-900"
-              : "bg-white text-gray-800"
-          }`}
-        >
-          Payment / รอชำระเงิน
-        </button>
-        <button
-          onClick={() => setTab("shipping")}
-          className={`px-4 py-2 rounded-full border ${
-            tab === "shipping"
-              ? "bg-gray-900 text-white border-gray-900"
-              : "bg-white text-gray-800"
-          }`}
-        >
-          Shipping / ระหว่างการจัดส่ง
-        </button>
-        <button
-          onClick={() => setTab("success")}
-          className={`px-4 py-2 rounded-full border ${
-            tab === "success"
-              ? "bg-gray-900 text-white border-gray-900"
-              : "bg-white text-gray-800"
-          }`}
-        >
-          Success / จัดส่งสำเร็จ
-        </button>
-      </div>
-
-      {/* List */}
-      {visible.length === 0 ? (
-        <p className="text-gray-600">ยังไม่มีรายการในหมวดนี้</p>
-      ) : (
-        <div className="space-y-4">
-          {visible.map((o) => {
-            const uiStatus = normalizeUiStatus(o.status);
-            const dt = o.datetime ?? o.created_at;
-            return (
-              <div
-                key={o.id}
-                className="border rounded-xl bg-white shadow-sm p-4 flex flex-col gap-3"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <div className="text-lg font-semibold">ออเดอร์ #{o.id}</div>
-                    <div className="text-sm text-gray-700 mt-1">
-                      วันที่:{" "}
-                      <span className="font-medium">
-                        {dt ? new Date(dt).toLocaleString("th-TH") : "-"}
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-700">
-                      ยอดรวม:{" "}
-                      <span className="font-bold">{o.totalprice ?? 0}฿</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs ${
-                        uiStatus === "payment"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : uiStatus === "shipping"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
-                      }`}
-                      title={`สถานะ: ${uiStatus}`}
-                    >
-                      {uiStatus}
-                    </span>
-                    <ActionButton o={o} />
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => toggleExpand(o)}
-                  className="self-start text-sm text-gray-700 underline underline-offset-4 hover:text-gray-900"
-                >
-                  {expanded[o.id] ? "ซ่อนรายการสินค้า" : "ดูรายการสินค้า"}
-                </button>
-
-                {expanded[o.id] && (
-                  <div className="rounded-lg border bg-gray-50 p-3">
-                    <LineItems o={o} />
-                  </div>
-                )}
-              </div>
-            );
-          })}
+      <main>
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button
+            onClick={() => setTab("payment")}
+            className={`px-4 py-2 rounded-full border ${
+              tab === "payment"
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-800"
+            }`}
+          >
+            Payment / รอชำระเงิน
+          </button>
+          <button
+            onClick={() => setTab("shipping")}
+            className={`px-4 py-2 rounded-full border ${
+              tab === "shipping"
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-800"
+            }`}
+          >
+            Shipping / ระหว่างการจัดส่ง
+          </button>
+          <button
+            onClick={() => setTab("success")}
+            className={`px-4 py-2 rounded-full border ${
+              tab === "success"
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-800"
+            }`}
+          >
+            Success / จัดส่งสำเร็จ
+          </button>
         </div>
-      )}
-    </main>
+
+        {/* List */}
+        {visible.length === 0 ? (
+          <p className="text-gray-600">ยังไม่มีรายการในหมวดนี้</p>
+        ) : (
+          <div className="space-y-4">
+            {visible.map((o) => {
+              const uiStatus = normalizeUiStatus(o.status);
+              const dt = o.datetime ?? o.created_at;
+              return (
+                <div
+                  key={o.id}
+                  className="border rounded-xl bg-white shadow-sm p-4 flex flex-col gap-3"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <div className="text-lg font-semibold">
+                        ออเดอร์ #{o.id}
+                      </div>
+                      <div className="text-sm text-gray-700 mt-1">
+                        วันที่:{" "}
+                        <span className="font-medium">
+                          {dt ? new Date(dt).toLocaleString("th-TH") : "-"}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-700">
+                        ยอดรวม:{" "}
+                        <span className="font-bold">{o.totalprice ?? 0}฿</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs ${
+                          uiStatus === "payment"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : uiStatus === "shipping"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
+                        }`}
+                        title={`สถานะ: ${uiStatus}`}
+                      >
+                        {uiStatus}
+                      </span>
+                      <ActionButton o={o} />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => toggleExpand(o)}
+                    className="self-start text-sm text-gray-700 underline underline-offset-4 hover:text-gray-900"
+                  >
+                    {expanded[o.id] ? "ซ่อนรายการสินค้า" : "ดูรายการสินค้า"}
+                  </button>
+
+                  {expanded[o.id] && (
+                    <div className="rounded-lg border bg-gray-50 p-3">
+                      <LineItems o={o} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
