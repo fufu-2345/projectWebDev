@@ -56,63 +56,141 @@ Log::info("User's Role: " . $user->role);
         return response()->json($orders);
     }
 
-    public function getCategorySummary() //3
-    {
-        $result = DB::table('items')
-            ->join('products', 'items.product_id', '=', 'products.id')
-            ->join('orders', 'items.order_id', '=', 'orders.id')
-            ->select(
-                'products.category as Category',
-                DB::raw('SUM(items.quantity) as "TotalQuantity"'),
-                DB::raw('SUM(orders.totalprice) as "TotalPrice"'),
-                DB::raw('COUNT(DISTINCT orders.id) as "TotalOrder"')
-            )
-            ->where('orders.status', 'completed')
-            ->whereBetween('orders.updated_at', ['2025-10-01 00:00:00', '2025-11-01 00:00:00'])
-            ->groupBy('products.category')
+    public function getCategorySummary(Request $request)
+{
+    $startMonth = $request->input('startMonth');
+    $endMonth = $request->input('endMonth');
+    $year = $request->input('year', date('Y'));
+    $category = $request->input('category');
+
+    $query = DB::table('items')
+        ->join('products', 'items.product_id', '=', 'products.id')
+        ->join('orders', 'items.order_id', '=', 'orders.id')
+        ->select(
+            'products.category as Category',
+            DB::raw('SUM(items.quantity) as TotalQuantity'),
+            DB::raw('SUM(orders.totalprice) as TotalPrice'),
+            DB::raw('COUNT(DISTINCT orders.id) as TotalOrder'),
+            DB::raw('MONTH(orders.updated_at) as Month')
+        )
+        ->where('orders.status', 'completed')
+        ->whereYear('orders.updated_at', $year)
+        ->whereBetween(DB::raw('MONTH(orders.updated_at)'), [$startMonth, $endMonth]);
+
+        if (!empty($category)) {
+            $query->where('products.category', $category);
+        }
+
+        $result = $query
+            ->groupBy('products.category', DB::raw('MONTH(orders.updated_at)'))
             ->get();
 
-        return $result;
+        $grouped = $result->groupBy('Category')->map(function ($items) use ($startMonth, $endMonth) {
+            $monthlyPrices = [];
+            for ($m = $startMonth; $m <= $endMonth; $m++) {
+                $monthData = $items->firstWhere('Month', $m);
+                $monthlyPrices[] = $monthData ? $monthData->TotalPrice : 0;
+            }
+            return [
+                'Category' => $items[0]->Category,
+                'TotalQuantity' => $items->sum('TotalQuantity'),
+                'TotalPrice' => $items->sum('TotalPrice'),
+                'TotalOrder' => $items->sum('TotalOrder'),
+                'MonthlyPrices' => $monthlyPrices,
+            ];
+        })->values();
+
+        return response()->json($grouped);
     }
 
-    public function getUserOrderSummary() //4
+    public function getUserOrderSummary(Request $request)
     {
+        $startMonth = $request->input('startMonth');
+        $endMonth = $request->input('endMonth');
+        $year = $request->input('year', date('Y'));
+
         $result = DB::table('items')
             ->join('products', 'items.product_id', '=', 'products.id')
             ->join('orders', 'items.order_id', '=', 'orders.id')
-            ->join('users', 'users.id', '=', 'orders.user_id') // เชื่อมโยงกับ users
+            ->join('users', 'users.id', '=', 'orders.user_id')
             ->select(
                 'users.name as Username',
-                DB::raw('SUM(items.quantity) as "TotalQuantity"'),
-                DB::raw('SUM(orders.totalprice) as "TotalPrice"'),
-                DB::raw('COUNT(DISTINCT orders.id) as "TotalOrder"')
+                DB::raw('SUM(items.quantity) as TotalQuantity'),
+                DB::raw('SUM(orders.totalprice) as TotalPrice'),
+                DB::raw('COUNT(DISTINCT orders.id) as TotalOrder'),
+                DB::raw('MONTH(orders.updated_at) as Month')
             )
             ->where('orders.status', 'completed')
-            ->whereBetween('orders.updated_at', ['2025-10-01 00:00:00', '2025-11-01 00:00:00'])
-            ->groupBy('users.name')
+            ->whereYear('orders.updated_at', $year)
+            ->whereBetween(DB::raw('MONTH(orders.updated_at)'), [$startMonth, $endMonth])
+            ->groupBy('users.name', DB::raw('MONTH(orders.updated_at)'))
             ->get();
 
-        return $result;
+        $grouped = $result->groupBy('Username')->map(function ($items) use ($startMonth, $endMonth) {
+            $monthlyPrices = [];
+            for ($m = $startMonth; $m <= $endMonth; $m++) {
+                $monthData = $items->firstWhere('Month', $m);
+                $monthlyPrices[] = $monthData ? $monthData->TotalPrice : 0;
+            }
+            return [
+                'Username' => $items[0]->Username,
+                'TotalQuantity' => $items->sum('TotalQuantity'),
+                'TotalPrice' => $items->sum('TotalPrice'),
+                'TotalOrder' => $items->sum('TotalOrder'),
+                'MonthlyPrices' => $monthlyPrices,
+            ];
+        })->values();
+
+        return response()->json($grouped);
     }
 
-    public function getProductSummary() //5
+    public function getProductSummary(Request $request)
     {
-        $result = DB::table('items')
+        $startMonth = $request->input('startMonth');
+        $endMonth = $request->input('endMonth');
+        $year = $request->input('year', date('Y'));
+        $category = $request->input('category', '');
+
+        $query = DB::table('items')
             ->join('products', 'items.product_id', '=', 'products.id')
             ->join('orders', 'items.order_id', '=', 'orders.id')
             ->select(
                 'products.title as Productname',
-                DB::raw('sum(items.quantity) as "TotalQuantity"'),
-                DB::raw('sum(orders.totalprice) as "TotalPrice"'),
-                DB::raw('count(distinct orders.id) as "TotalOrder"')
+                DB::raw('SUM(items.quantity) as TotalQuantity'),
+                DB::raw('SUM(orders.totalprice) as TotalPrice'),
+                DB::raw('COUNT(DISTINCT orders.id) as TotalOrder'),
+                DB::raw('MONTH(orders.updated_at) as Month')
             )
             ->where('orders.status', 'completed')
-            ->whereBetween('orders.updated_at', ['2025-10-01 00:00:00', '2025-11-01 00:00:00'])
-            ->groupBy('products.id')
+            ->whereYear('orders.updated_at', $year)
+            ->whereBetween(DB::raw('MONTH(orders.updated_at)'), [$startMonth, $endMonth]);
+
+        if ($category !== '') {
+            $query->where('products.category', $category);
+        }
+
+        $result = $query
+            ->groupBy('products.title', DB::raw('MONTH(orders.updated_at)'))
             ->get();
 
-        return $result;
+        $grouped = $result->groupBy('Productname')->map(function ($items) use ($startMonth, $endMonth) {
+            $monthlyPrices = [];
+            for ($m = $startMonth; $m <= $endMonth; $m++) {
+                $monthData = $items->firstWhere('Month', $m);
+                $monthlyPrices[] = $monthData ? $monthData->TotalPrice : 0;
+            }
+            return [
+                'Productname' => $items[0]->Productname,
+                'TotalQuantity' => $items->sum('TotalQuantity'),
+                'TotalPrice' => $items->sum('TotalPrice'),
+                'TotalOrder' => $items->sum('TotalOrder'),
+                'MonthlyPrices' => $monthlyPrices,
+            ];
+        })->values();
+
+        return response()->json($grouped);
     }
+
 
     ///////
 }

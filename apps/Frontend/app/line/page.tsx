@@ -3,9 +3,30 @@
 import React, { useState, useEffect } from "react";
 import { myAppHook } from "@/context/AppProvider";
 import { useRouter } from "next/navigation";
-import { Chart } from "chart.js";
 import Loader from "@/components/Loader";
 import axios from "axios";
+
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 enum Category {
   Pencil = "Pencil",
@@ -23,8 +44,8 @@ const Dashboard: React.FC = () => {
   const [baseOn, setBaseOn] = useState<string>("user"); // user or product or category
   const [categories, setCategories] = useState<Category>(Category.All);
   const [data, setData] = useState<any[]>([]);
-  const [startMonth, setStartMonth] = useState<number>(0);
-  const [endMonth, setEndMonth] = useState<number>(0);
+  const [startMonth, setStartMonth] = useState<number>(1);
+  const [endMonth, setEndMonth] = useState<number>(12);
 
   if (isLoading) {
     return <Loader />;
@@ -34,8 +55,9 @@ const Dashboard: React.FC = () => {
     if (!authToken || role === "user") {
       router.back();
     }
+    console.log(baseOn);
     fetchData();
-  }, [authToken, role]);
+  }, [authToken, role, categories]);
 
   const handleStartMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setStartMonth(parseInt(e.target.value));
@@ -44,6 +66,13 @@ const Dashboard: React.FC = () => {
   const handleEndMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setEndMonth(parseInt(e.target.value));
   };
+
+  useEffect(() => {
+    if (startMonth && endMonth) {
+      console.log(baseOn);
+      fetchData();
+    }
+  }, [startMonth, endMonth]);
 
   interface ProductType {
     id?: number;
@@ -58,6 +87,7 @@ const Dashboard: React.FC = () => {
   // List all products
   const fetchData = async () => {
     try {
+      console.log(baseOn);
       let type = "";
       if (baseOn === "user") {
         type = "getUserOrderSummary";
@@ -66,32 +96,37 @@ const Dashboard: React.FC = () => {
       } else if (baseOn === "category") {
         type = "getCategorySummary";
       }
+
+      const currentYear = new Date().getFullYear();
+
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/${type}`,
         {
-          params: { category: categories },
+          params: {
+            category: categories,
+            startMonth,
+            endMonth,
+            year: currentYear,
+          },
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         }
       );
-      console.log(response);
       setData(response.data);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleOptionChange = async (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleOptionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setCategories(event.target.value as Category);
-    fetchData();
   };
 
   const handleCategoryChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
+    console.log(event.target.value);
     setBaseOn(event.target.value);
     try {
       let type = "";
@@ -102,20 +137,58 @@ const Dashboard: React.FC = () => {
       } else if (event.target.value === "category") {
         type = "getCategorySummary";
       }
+
+      const currentYear = new Date().getFullYear();
+
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/${type}`,
         {
-          params: { category: categories },
+          params: {
+            category: categories,
+            startMonth,
+            endMonth,
+            year: currentYear,
+          },
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         }
       );
-      console.log(response);
       setData(response.data);
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const generateMonths = () => {
+    const months = [];
+    for (let i = startMonth; i <= endMonth; i++) {
+      months.push(`เดือน ${i}`);
+    }
+    return months;
+  };
+
+  const chartData = {
+    labels: generateMonths(),
+    datasets: data.map((item, index) => ({
+      label:
+        baseOn === "user"
+          ? item.Username
+          : baseOn === "product"
+            ? item.Productname
+            : item.Category,
+      data: item.MonthlyPrices || [],
+      borderColor: `hsl(${(index * 60) % 360}, 70%, 50%)`,
+      backgroundColor: "transparent",
+      tension: 0.3,
+    })),
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" as const },
+    },
   };
 
   return (
@@ -127,7 +200,7 @@ const Dashboard: React.FC = () => {
         <option value="category">Product Category</option>
       </select>
 
-      {baseOn === "product" && (
+      {baseOn === "category" && (
         <>
           <select
             className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
@@ -247,6 +320,42 @@ const Dashboard: React.FC = () => {
           </table>
         )}
       </div>
+      <br />
+      <div className="flex flex-col justify-center items-center space-y-4">
+        <div className="flex items-center">
+          <span className="mr-2">เริ่มเดือน:</span>
+          <input
+            type="number"
+            pattern="\d*"
+            min={1}
+            max={12}
+            value={startMonth}
+            onChange={handleStartMonthChange}
+            className="border p-2 rounded-md"
+          />
+        </div>
+        <div className="flex items-center">
+          <span className="mr-2">เดือนสิ้นสุด:</span>
+          <input
+            type="number"
+            pattern="\d*"
+            min={1}
+            max={12}
+            value={endMonth}
+            onChange={handleEndMonthChange}
+            className="border p-2 rounded-md"
+          />
+        </div>
+      </div>
+
+      <br />
+      <div className="flex items-center justify-center">
+        <div className="w-[50%] md:w-[50%]">
+          <Line data={chartData} options={chartOptions} />
+        </div>
+      </div>
+      <br />
+      <br />
     </>
   );
 };
