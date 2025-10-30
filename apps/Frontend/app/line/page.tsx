@@ -191,172 +191,194 @@ const Dashboard: React.FC = () => {
     },
   };
 
+  const graph = document.getElementById("graph");
+  if (graph) {
+    graph.style.display = "flex";
+    graph.style.alignItems = "center";
+    graph.style.justifyContent = "center";
+  }
+
+  const categoryType = document.getElementById("categoryType");
+  if (categoryType) {
+    categoryType.style.marginBottom = "1rem";
+    categoryType.style.padding = "0.75rem";
+    categoryType.style.width = "100%";
+    categoryType.style.border = "1px solid #D1D5DB";
+    categoryType.style.borderRadius = "0.375rem";
+  }
+
   return (
-    <>
-      <br />
-      <select onChange={handleCategoryChange} value={baseOn}>
-        <option value="user">User</option>
-        <option value="product">Product</option>
-        <option value="category">Product Category</option>
-      </select>
+    <main>
+      <section>
+        <br />
+        <select onChange={handleCategoryChange} value={baseOn}>
+          <option value="user">User</option>
+          <option value="product">Product</option>
+          <option value="category">Product Category</option>
+        </select>
 
-      {baseOn === "category" && (
-        <>
-          <select
-            className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-            value={categories}
-            onChange={handleOptionChange}
-          >
-            <option value={Category.All}>All Product</option>
-            <option value={Category.Pencil}>Pencil</option>
-            <option value={Category.Eraser}>Eraser</option>
-            <option value={Category.Ruler}>Ruler</option>
-            <option value={Category.Pen}>Pen</option>
-            <option value={Category.Liquid}>Liquid</option>
-            <option value={Category.Paint}>Paint</option>
-          </select>
-        </>
-      )}
-      <br />
-      <br />
-
-      <div className="flex items-center justify-center">
         {baseOn === "category" && (
-          <table className="border border-black">
-            <thead>
-              <tr className="border border-black">
-                <th className="border border-black px-4 py-2">Category</th>
-                <th className="border border-black px-4 py-2">
-                  Total Quantity
-                </th>
-                <th className="border border-black px-4 py-2">Total Price</th>
-                <th className="border border-black px-4 py-2">Total Order</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((dataa, index) => (
-                <tr key={index} className="border border-black">
-                  <td className="border border-black px-4 py-2">
-                    {dataa.Category}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalQuantity}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalPrice}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalOrder}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <>
+            <select
+              id="categoryType"
+              value={categories}
+              onChange={handleOptionChange}
+            >
+              <option value={Category.All}>All Product</option>
+              <option value={Category.Pencil}>Pencil</option>
+              <option value={Category.Eraser}>Eraser</option>
+              <option value={Category.Ruler}>Ruler</option>
+              <option value={Category.Pen}>Pen</option>
+              <option value={Category.Liquid}>Liquid</option>
+              <option value={Category.Paint}>Paint</option>
+            </select>
+          </>
         )}
+        <br />
+        <br />
 
-        {baseOn === "user" && (
-          <table className="border border-black">
-            <thead>
-              <tr className="border border-black">
-                <th className="border border-black px-4 py-2">Username</th>
-                <th className="border border-black px-4 py-2">
-                  Total Quantity
-                </th>
-                <th className="border border-black px-4 py-2">Total Price</th>
-                <th className="border border-black px-4 py-2">Total Order</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((dataa, index) => (
-                <tr key={index} className="border border-black">
-                  <td className="border border-black px-4 py-2">
-                    {dataa.Username}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalQuantity}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalPrice}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalOrder}
-                  </td>
+        <div className="flex items-center justify-center">
+          {baseOn === "category" && (
+            <table className="border border-black">
+              <thead>
+                <tr className="border border-black">
+                  <th className="border border-black px-4 py-2">Category</th>
+                  <th className="border border-black px-4 py-2">
+                    Total Quantity
+                  </th>
+                  <th className="border border-black px-4 py-2">Total Price</th>
+                  <th className="border border-black px-4 py-2">Total Order</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {data.map((dataa, index) => (
+                  <tr key={index} className="border border-black">
+                    <td className="border border-black px-4 py-2">
+                      {dataa.Category}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalQuantity}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalPrice}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalOrder}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
-        {baseOn === "product" && (
-          <table className="border border-black">
-            <thead>
-              <tr className="border border-black">
-                <th className="border border-black px-4 py-2">product</th>
-                <th className="border border-black px-4 py-2">
-                  Total Quantity
-                </th>
-                <th className="border border-black px-4 py-2">Total Price</th>
-                <th className="border border-black px-4 py-2">Total Order</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((dataa, index) => (
-                <tr key={index} className="border border-black">
-                  <td className="border border-black px-4 py-2">
-                    {dataa.Productname}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalQuantity}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalPrice}
-                  </td>
-                  <td className="border border-black px-4 py-2">
-                    {dataa.TotalOrder}
-                  </td>
+          {baseOn === "user" && (
+            <table className="border border-black">
+              <thead>
+                <tr className="border border-black">
+                  <th className="border border-black px-4 py-2">Username</th>
+                  <th className="border border-black px-4 py-2">
+                    Total Quantity
+                  </th>
+                  <th className="border border-black px-4 py-2">Total Price</th>
+                  <th className="border border-black px-4 py-2">Total Order</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-      <br />
-      <div className="flex flex-col justify-center items-center space-y-4">
-        <div className="flex items-center">
-          <span className="mr-2">เริ่มเดือน:</span>
-          <input
-            type="number"
-            pattern="\d*"
-            min={1}
-            max={12}
-            value={startMonth}
-            onChange={handleStartMonthChange}
-            className="border p-2 rounded-md"
-          />
+              </thead>
+              <tbody>
+                {data.map((dataa, index) => (
+                  <tr key={index} className="border border-black">
+                    <td className="border border-black px-4 py-2">
+                      {dataa.Username}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalQuantity}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalPrice}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalOrder}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          {baseOn === "product" && (
+            <table className="border border-black">
+              <thead>
+                <tr className="border border-black">
+                  <th className="border border-black px-4 py-2">product</th>
+                  <th className="border border-black px-4 py-2">
+                    Total Quantity
+                  </th>
+                  <th className="border border-black px-4 py-2">Total Price</th>
+                  <th className="border border-black px-4 py-2">Total Order</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((dataa, index) => (
+                  <tr key={index} className="border border-black">
+                    <td className="border border-black px-4 py-2">
+                      {dataa.Productname}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalQuantity}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalPrice}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {dataa.TotalOrder}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-        <div className="flex items-center">
-          <span className="mr-2">เดือนสิ้นสุด:</span>
-          <input
-            type="number"
-            pattern="\d*"
-            min={1}
-            max={12}
-            value={endMonth}
-            onChange={handleEndMonthChange}
-            className="border p-2 rounded-md"
-          />
-        </div>
-      </div>
+      </section>
 
       <br />
-      <div className="flex items-center justify-center">
-        <div className="w-[50%] md:w-[50%]">
-          <Line data={chartData} options={chartOptions} />
+
+      <section>
+        <div className="flex flex-col justify-center items-center space-y-4">
+          <div className="flex items-center">
+            <span className="mr-2">เริ่มเดือน:</span>
+            <input
+              type="number"
+              pattern="\d*"
+              min={1}
+              max={12}
+              value={startMonth}
+              onChange={handleStartMonthChange}
+              className="border p-2 rounded-md"
+            />
+          </div>
+          <div className="flex items-center">
+            <span className="mr-2">เดือนสิ้นสุด:</span>
+            <input
+              type="number"
+              pattern="\d*"
+              min={1}
+              max={12}
+              value={endMonth}
+              onChange={handleEndMonthChange}
+              className="border p-2 rounded-md"
+            />
+          </div>
         </div>
-      </div>
-      <br />
-      <br />
-    </>
+
+        <br />
+        <div id="graph">
+          <div className="w-[50%] md:w-[50%]">
+            <Line data={chartData} options={chartOptions} />
+          </div>
+        </div>
+        <br />
+        <br />
+      </section>
+    </main>
   );
 };
 
