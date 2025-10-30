@@ -68,7 +68,6 @@ export default function Page() {
       formData.append("phone", form.phone);
       formData.append("birthday", form.birthday);
       if (file) formData.append("profilepic", file);
-
       try {
         const res = await fetch("http://localhost:8000/api/profile", {
           method: "POST",
