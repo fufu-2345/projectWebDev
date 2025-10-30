@@ -16,7 +16,7 @@ export enum Role {
 interface AppProviderType {
   isLoading: boolean;
   authToken: string | null;
-  role: Role;
+  role: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (
     name: string,
@@ -29,18 +29,20 @@ interface AppProviderType {
 
 const AppContext = createContext<AppProviderType | undefined>(undefined);
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`; // e.g. http://127.0.0.1:8000/api
-const ME_ENDPOINT = `${API_URL}/me`;                   // ✅ ใช้ endpoint เดียวชัดเจน
+const ME_ENDPOINT = `${API_URL}/me`; // ✅ ใช้ endpoint เดียวชัดเจน
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const [role, setRole] = useState<Role>(Role.User);
+  const [role, setRole] = useState<string | null>(null);
   const router = useRouter();
 
   // แนบ Authorization ให้ axios อัตโนมัติเมื่อมี token
   useEffect(() => {
-    if (authToken) {
-      axios.defaults.headers.common.Authorization = `Bearer ${authToken}`;
+    const token = Cookies.get("authToken");
+    if (token) {
+      setAuthToken(token);
+      fetchSession();
     } else {
       delete axios.defaults.headers.common.Authorization;
     }
@@ -102,27 +104,58 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
+  const fetchSession = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/session`, {
+        withCredentials: true,
+      });
+      setRole(response.data.role);
+      console.log("role", response.data.role);
+    } catch (error) {
+      console.error("Failed to fetch session", error);
+    }
+  };
+
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:8000",
+    withCredentials: true,
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+    },
+  });
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/login`, { email, password });
-      if (response.data?.status) {
-        const token = String(response.data.token || "");
-        const serverRole = String(response.data.role || "").toLowerCase();
+      await axiosInstance.get("/sanctum/csrf-cookie");
 
-        Cookies.set("authToken", token, { expires: 7 });
-        Cookies.set("role", serverRole, { expires: 7 });
+      const token = decodeURIComponent(
+        document.cookie
+          .split("; ")
+          .find((c) => c.startsWith("XSRF-TOKEN="))
+          ?.split("=")[1] || ""
+      );
 
-        setAuthToken(token);
-        setRole(serverRole === Role.Admin ? Role.Admin : Role.User);
+      const response = await axiosInstance.post(
+        "/api/login",
+        { email, password },
+        {
+          headers: { "X-XSRF-TOKEN": token },
+        }
+      );
 
+      if (response.data.status) {
+        Cookies.set("authToken", response.data.token, { expires: 7 });
         toast.success("Login successful");
+        setAuthToken(response.data.token);
+        await fetchSession();
         router.push("/");
       } else {
         toast.error("Invalid login details");
       }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Login failed");
+    } catch (error) {
+      console.error(error);
+      toast.error("Login failed");
     } finally {
       setIsLoading(false);
     }

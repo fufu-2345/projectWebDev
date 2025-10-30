@@ -7,10 +7,15 @@ export default function Page() {
   const { authToken, isLoading: authLoading } = myAppHook();
   const [user, setUser] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [form, setForm] = useState({ name: "", address: "", phone: "", birthday: "" });
+  const [form, setForm] = useState({
+    name: "",
+    address: "",
+    phone: "",
+    birthday: "",
+  });
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false); 
+  const [isEditing, setIsEditing] = useState(false);
 
   // ดึงข้อมูลโปรไฟล์
   useEffect(() => {
@@ -21,9 +26,13 @@ export default function Page() {
       }
       try {
         const res = await fetch("http://localhost:8000/api/profile", {
-          headers: { Authorization: `Bearer ${authToken}`, Accept: "application/json" },
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: "application/json",
+          },
         });
         const data = await res.json();
+        console.log(data);
         setUser(data.user);
         setForm({
           name: data.user.name || "",
@@ -61,7 +70,7 @@ export default function Page() {
       if (result.user) {
         setUser(result.user);
         setPreview(null);
-        setIsEditing(false); 
+        setIsEditing(false);
         alert("Profile updated successfully!");
       }
     } catch (err) {
@@ -80,21 +89,24 @@ export default function Page() {
     }
   };
 
-  if (loading || authLoading) return <p className="p-6 text-center">Loading profile...</p>;
+  if (loading || authLoading)
+    return <p className="p-6 text-center">Loading profile...</p>;
   if (!user) return <p className="p-6 text-center">Please login first.</p>;
 
   return (
     <div className="p-6 max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-center">Profile of {user.name}</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">
+        Profile of {user.name}
+      </h1>
 
       {/* 🆕 ปุ่มไปหน้า orders */}
-        <Link
-          href="/orders"
-          className="inline-flex items-center gap-2 rounded-full bg-gray-900 text-white px-4 py-2 hover:bg-gray-800 transition"
-          aria-label="ไปหน้าประวัติการสั่งซื้อ"
-        >
-          ดูประวัติการสั่งซื้อ
-        </Link>
+      <Link
+        href="/orders"
+        className="inline-flex items-center gap-2 rounded-full bg-gray-900 text-white px-4 py-2 hover:bg-gray-800 transition"
+        aria-label="ไปหน้าประวัติการสั่งซื้อ"
+      >
+        ดูประวัติการสั่งซื้อ
+      </Link>
 
       <div className="flex flex-col items-center mb-4">
         <img
@@ -108,10 +120,18 @@ export default function Page() {
       {!isEditing ? (
         // 🔹 View Mode
         <div className="space-y-2">
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Address:</strong> {user.address || "-"}</p>
-          <p><strong>Phone:</strong> {user.phone || "-"}</p>
-          <p><strong>Birthday:</strong> {user.birthday || "-"}</p>
+          <p>
+            <strong>Name:</strong> {user.name}
+          </p>
+          <p>
+            <strong>Address:</strong> {user.address || "-"}
+          </p>
+          <p>
+            <strong>Phone:</strong> {user.phone || "-"}
+          </p>
+          <p>
+            <strong>Birthday:</strong> {user.birthday || "-"}
+          </p>
           <button
             onClick={() => setIsEditing(true)}
             className="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"

@@ -30,7 +30,7 @@ interface ProductType {
 }
 
 const Dashboard: React.FC = () => {
-  const { isLoading, authToken, role } = myAppHook();
+  const { isLoading, authToken } = myAppHook();
   const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<Category>(Category.All);
@@ -54,7 +54,7 @@ const Dashboard: React.FC = () => {
       router.push("/auth");
       return;
     }
-    console.log(role);
+    //console.log(role);
     fetchAllProducts();
   }, [authToken]);
 
@@ -222,29 +222,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const adminTest = async () => {
-    console.log(role);
-    if (role !== "admin") {
-      toast.error("Only admin can access this function!");
-      return;
-    }
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin-test`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-      if (response.data.message) {
-        toast.success(response.data.message);
-      }
-    } catch (error) {
-      toast.error("Unauthorized or error occurred");
-      console.log(error);
-    }
-  };
+  const adminTest = async () => {};
 
   return (
     <>

@@ -35,7 +35,7 @@ Log::info("User's Role: " . $user->role);
 
 
     /////// ส่งความคืบหน้าครั้งที่ 2
-    public function getShippingOrders()
+    public function getShippingOrders() //2
     {
         $orders = User::join('orders', 'users.id', '=', 'orders.user_id')
             ->join('items', 'orders.id', '=', 'items.order_id')
@@ -56,26 +56,26 @@ Log::info("User's Role: " . $user->role);
         return response()->json($orders);
     }
 
-    public function getCategorySummary()
+    public function getCategorySummary() //3
     {
         $result = DB::table('items')
             ->join('products', 'items.product_id', '=', 'products.id')
             ->join('orders', 'items.order_id', '=', 'orders.id')
             ->select(
                 'products.category as Category',
-                DB::raw('SUM(items.quantity) as "Total quantity"'),
-                DB::raw('SUM(orders.totalprice) as "Total price"'),
-                DB::raw('COUNT(DISTINCT orders.id) as "Total order"')
+                DB::raw('SUM(items.quantity) as "TotalQuantity"'),
+                DB::raw('SUM(orders.totalprice) as "TotalPrice"'),
+                DB::raw('COUNT(DISTINCT orders.id) as "TotalOrder"')
             )
-            ->where('orders.status', 'complete')
-            ->whereBetween('orders.updated_at', ['2025-09-01 00:00:00', '2025-10-01 00:00:00'])
+            ->where('orders.status', 'completed')
+            ->whereBetween('orders.updated_at', ['2025-10-01 00:00:00', '2025-11-01 00:00:00'])
             ->groupBy('products.category')
             ->get();
 
         return $result;
     }
 
-    public function getUserOrderSummary()
+    public function getUserOrderSummary() //4
     {
         $result = DB::table('items')
             ->join('products', 'items.product_id', '=', 'products.id')
@@ -83,31 +83,31 @@ Log::info("User's Role: " . $user->role);
             ->join('users', 'users.id', '=', 'orders.user_id') // เชื่อมโยงกับ users
             ->select(
                 'users.name as Username',
-                DB::raw('SUM(items.quantity) as "Total quantity"'),
-                DB::raw('SUM(orders.totalprice) as "Total price"'),
-                DB::raw('COUNT(DISTINCT orders.id) as "Total order"')
+                DB::raw('SUM(items.quantity) as "TotalQuantity"'),
+                DB::raw('SUM(orders.totalprice) as "TotalPrice"'),
+                DB::raw('COUNT(DISTINCT orders.id) as "TotalOrder"')
             )
-            ->where('orders.status', 'complete')
-            ->whereBetween('orders.updated_at', ['2025-09-01 00:00:00', '2025-10-01 00:00:00'])
+            ->where('orders.status', 'completed')
+            ->whereBetween('orders.updated_at', ['2025-10-01 00:00:00', '2025-11-01 00:00:00'])
             ->groupBy('users.name')
             ->get();
 
         return $result;
     }
 
-    public function getProductSummary()
+    public function getProductSummary() //5
     {
         $result = DB::table('items')
             ->join('products', 'items.product_id', '=', 'products.id')
             ->join('orders', 'items.order_id', '=', 'orders.id')
             ->select(
                 'products.title as Productname',
-                DB::raw('sum(items.quantity) as "Total quantity"'),
-                DB::raw('sum(orders.totalprice) as "Total price"'),
-                DB::raw('count(distinct orders.id) as "Total order"')
+                DB::raw('sum(items.quantity) as "TotalQuantity"'),
+                DB::raw('sum(orders.totalprice) as "TotalPrice"'),
+                DB::raw('count(distinct orders.id) as "TotalOrder"')
             )
-            ->where('orders.status', 'complete')
-            ->whereBetween('orders.updated_at', ['2025-09-01 00:00:00', '2025-10-01 00:00:00'])
+            ->where('orders.status', 'completed')
+            ->whereBetween('orders.updated_at', ['2025-10-01 00:00:00', '2025-11-01 00:00:00'])
             ->groupBy('products.id')
             ->get();
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { myAppHook } from "@/context/AppProvider";
 
 const Navbar = () => {
-  const { logout, authToken } = myAppHook();
+  const { logout, authToken, role } = myAppHook();
 
   return (
     <nav className="bg-yellow-500 sm:bg-blue-600 text-white">
@@ -13,15 +13,13 @@ const Navbar = () => {
           Navbar for normal user
         </Link>
 
-        {/* Toggle Button for mobile */}
         <button
           className="lg:hidden p-2 rounded-md text-white hover:text-gray-300"
           type="button"
           aria-label="Toggle navigation"
         >
-          <span className="block w-6 h-0.5 bg-white mb-1"></span>
-          <span className="block w-6 h-0.5 bg-white mb-1"></span>
-          <span className="block w-6 h-0.5 bg-white"></span>
+          <span className="block w-6 h-0.5 bg-white mb-1">Home</span>
+          <span className="block w-6 h-0.5 bg-white">Login</span>
         </button>
 
         {/* Navbar links */}
@@ -33,15 +31,15 @@ const Navbar = () => {
               </Link>
               <Link
                 className="text-white py-auto hover:text-gray-300"
-                href="/profile"
+                href={role === "user" ? "/profile" : "/line"}
               >
-                Profile
+                {role === "user" ? "Profile" : "Statistic"}
               </Link>
               <Link
                 className="text-white py-auto hover:text-gray-300"
-                href="/cart"
+                href={role === "user" ? "/cart" : "/promotion"}
               >
-                Cart
+                {role === "user" ? "Cart" : "Promotion"}
               </Link>
 
               <button
@@ -53,16 +51,13 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <li>
-                <Link className="text-white hover:text-gray-300" href="/">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link className="text-white hover:text-gray-300" href="/auth">
-                  Login
-                </Link>
-              </li>
+              <Link className="text-white hover:text-gray-300" href="/">
+                Home
+              </Link>
+
+              <Link className="text-white hover:text-gray-300" href="/auth">
+                Login
+              </Link>
             </>
           )}
         </div>

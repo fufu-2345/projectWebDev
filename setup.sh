@@ -1,4 +1,4 @@
 pnpm install
 
-cd ../../apps/Backend
+cd apps/Backend
 composer install

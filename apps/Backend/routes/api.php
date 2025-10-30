@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Session;
+use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -18,28 +20,48 @@ use App\Http\Middleware\CheckRole;
 Route::get('/hello', function () {
     return response()->json(['message' => 'hello']);
 });
+
+Route::get('/sanctum/csrf-cookie', [CsrfCookieController::class, 'show']);
+
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['csrf_token' => csrf_token()])
+        ->withCookie(cookie('XSRF-TOKEN', csrf_token(), 120));
+});
+
+Route::middleware(['web'])->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+
+    Route::get('/session', function () {
+        return response()->json([
+            'role' => Session::get('user_role'),
+            'id' => Session::get('user_id'),
+            'session_id' => Session::getId()
+        ]);
+    });
+});
+
 Route::post("register", [AuthController::class, "register"]);
-Route::post("login", [AuthController::class, "login"]);
-
-// ถ้าอยากให้ profile เป็น private ให้ย้ายไปอยู่ในกลุ่ม auth ด้านล่าง
-// Route::get('profile', [AuthController::class, 'profile']); // (ไม่แนะนำให้เปิด public)
-
-// products (คงเวอร์ชันเต็มจากไฟล์ที่สอง, เอาเวอร์ชัน only(['index','show']) ออกเพราะซ้ำ)
+Route::get('profile', [ProfileController::class, 'show']);
 Route::apiResource("products", ProductController::class);
 
-// เพิ่มเติมจากไฟล์ที่สอง: โปรไฟล์ผู้ใช้แยก controller
-Route::get('user/profile', [ProfileController::class, 'show']);
-
-/*  ส่งความคืบหน้าครั้งที่ 2
+// ส่งความคืบหน้าครั้งที่ 2
 Route::get("getShippingOrders", [AdminController::class, "getShippingOrders"]);
 Route::get("getCategorySummary", [AdminController::class, "getCategorySummary"]);
 Route::get("getUserOrderSummary", [AdminController::class, "getUserOrderSummary"]);
 Route::get("getProductSummary", [AdminController::class, "getProductSummary"]);
-*/
 
 // -------- Product detail by id (public) --------
 use App\Http\Controllers\DetailProductController ;
 Route::get('/products/{productId}/detail',[DetailProductController::class,'show']);
+
+Route::group([
+    "middleware" => ["auth:sanctum"]
+], function(){
+    Route::get("profile", [AuthController::class, "profile"]);
+    Route::get("users", [UserController::class, "showUser"]);
+    Route::get('profile', [ProfileController::class, 'show']);
+    Route::post('profile', [ProfileController::class, 'update']);
+});
 
 // -------- Authenticated (ต้อง login) --------
 // ใน group คือพวกที่ต้อง login แล้วเท่านั้น
@@ -57,15 +79,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ]);
     });
 
-    // ถ้าต้องการ profile แบบละเอียดและเป็น private
-    Route::get("profile", [AuthController::class, "profile"]);
-
     // ออกจากระบบ
     Route::get("logout", [AuthController::class, "logout"]);
 
     // Users/Promotions (ตัวอย่าง)
     Route::get("users", [UserController::class, "showUser"]);
     Route::get("promotions", [PromotionController::class, "index"]);
+    Route::post("updatePromotions", [PromotionController::class, "update"]);
     Route::get("updatePro", [PromotionController::class, "update"]);
 
     // Orders (ของผู้ใช้ที่ล็อกอิน)
@@ -81,10 +101,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/delete',  [CartController::class, 'deleteItem']);
         Route::post('/checkout',[CartController::class, 'checkout']);
     });
-
-    // NOTE: ลบเส้นทางซ้ำกันของ ProfileController ภายใน auth group:
-    // Route::get('profile', [ProfileController::class, 'show']);
-    // Route::post('profile', [ProfileController::class, 'update']);
 });
 
 // -------- Admin only --------

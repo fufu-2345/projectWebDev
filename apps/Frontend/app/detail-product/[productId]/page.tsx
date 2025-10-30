@@ -19,7 +19,7 @@ interface Props {
 }
 
 const Page: React.FC<Props> = ({ params }) => {
-  const { productId } = params;
+  const { productId } = React.use(params);
   const router = useRouter();
   const { authToken } = myAppHook();
 
@@ -28,21 +28,23 @@ const Page: React.FC<Props> = ({ params }) => {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const res = await fetch(`http://localhost:8000/api/products/${productId}/detail`);
-      const data = await res.json();
-      console.log("Fetched product:", data);
-      // setProduct แบบตรงๆ ไม่เช็ค status เผื่อ backend ไม่มี status
-      setProduct(data.product || null);
-    } catch (err) {
-      console.error("Fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchData();
-}, [productId]);
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/products/${productId}/detail`
+        );
+        const data = await res.json();
+        console.log("Fetched product:", data);
+        // setProduct แบบตรงๆ ไม่เช็ค status เผื่อ backend ไม่มี status
+        setProduct(data.product || null);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [productId]);
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -63,8 +65,8 @@ const Page: React.FC<Props> = ({ params }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           product_id: product.id,
@@ -93,7 +95,7 @@ const Page: React.FC<Props> = ({ params }) => {
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = parseInt(e.target.value) || 1; 
+    let value = parseInt(e.target.value) || 1;
     if (product) {
       if (value > product.stock) value = product.stock;
       if (value < 1) value = 1;
@@ -104,9 +106,7 @@ const Page: React.FC<Props> = ({ params }) => {
   if (loading)
     return <p className="text-center mt-10 text-gray-500">Loading...</p>;
   if (!product)
-    return (
-      <p className="text-center mt-10 text-red-500">Product not found</p>
-    );
+    return <p className="text-center mt-10 text-red-500">Product not found</p>;
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -115,7 +115,7 @@ const Page: React.FC<Props> = ({ params }) => {
         <div className="md:w-1/2 flex justify-center items-center">
           {product.banner_image ? (
             <img
-              src={`http://localhost:8000${product.banner_image}`} // ✅ เผื่อ backend ส่ง path
+              src={`${product.banner_image}`} // ✅ เผื่อ backend ส่ง path
               alt={product.title}
               className="rounded-lg max-h-96 object-contain"
             />
@@ -131,7 +131,8 @@ const Page: React.FC<Props> = ({ params }) => {
           <div>
             <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
             <p className="text-gray-700 mb-2">
-              <span className="font-semibold">Category:</span> {product.category}
+              <span className="font-semibold">Category:</span>{" "}
+              {product.category}
             </p>
             <p className="text-gray-700 mb-2">
               <span className="font-semibold">Cost:</span> ${product.cost}
