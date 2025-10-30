@@ -112,3 +112,6 @@ Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
+// -------- Product detail by id (public) --------
+
+Route::get('promotions',  [PromotionController::class, 'index']);
