@@ -22,7 +22,10 @@ const Navbar = () => {
   const DesktopLinks = () =>
     authToken ? (
       <>
-        <Link className="px-3 py-2 rounded-lg text-white hover:bg-blue-500/40 transition-colors" href="/">
+        <Link
+          className="px-3 py-2 rounded-lg text-white hover:bg-blue-500/40 transition-colors"
+          href="/"
+        >
           Home
         </Link>
 
@@ -57,10 +60,16 @@ const Navbar = () => {
       </>
     ) : (
       <>
-        <Link className="px-3 py-2 rounded-lg text-white hover:bg-blue-500/40 transition-colors" href="/">
+        <Link
+          className="px-3 py-2 rounded-lg text-white hover:bg-blue-500/40 transition-colors"
+          href="/"
+        >
           Home
         </Link>
-        <Link className="px-3 py-2 rounded-lg text-white hover:bg-blue-500/40 transition-colors" href="/auth">
+        <Link
+          className="px-3 py-2 rounded-lg text-white hover:bg-blue-500/40 transition-colors"
+          href="/auth"
+        >
           Login
         </Link>
       </>
@@ -70,21 +79,33 @@ const Navbar = () => {
   const MobileLinks = () =>
     authToken ? (
       <>
-        <Link className="block px-4 py-2 rounded-md hover:bg-blue-400/30" href="/">
+        <Link
+          className="block px-4 py-2 rounded-md hover:bg-blue-400/30"
+          href="/"
+        >
           Home
         </Link>
 
         {/* Dashboard — เฉพาะแอดมิน */}
         {isAdmin && (
-          <Link className="block px-4 py-2 rounded-md hover:bg-blue-400/30" href="/dashboard">
+          <Link
+            className="block px-4 py-2 rounded-md hover:bg-blue-400/30"
+            href="/dashboard"
+          >
             Dashboard
           </Link>
         )}
 
-        <Link className="block px-4 py-2 rounded-md hover:bg-blue-400/30" href={role === "user" ? "/profile" : "/line"}>
+        <Link
+          className="block px-4 py-2 rounded-md hover:bg-blue-400/30"
+          href={role === "user" ? "/profile" : "/line"}
+        >
           {role === "user" ? "Profile" : "Statistic"}
         </Link>
-        <Link className="block px-4 py-2 rounded-md hover:bg-blue-400/30" href={role === "user" ? "/cart" : "/promotion"}>
+        <Link
+          className="block px-4 py-2 rounded-md hover:bg-blue-400/30"
+          href={role === "user" ? "/cart" : "/promotion"}
+        >
           {role === "user" ? "Cart" : "Promotion"}
         </Link>
         <button
@@ -96,10 +117,16 @@ const Navbar = () => {
       </>
     ) : (
       <>
-        <Link className="block px-4 py-2 rounded-md hover:bg-blue-400/30" href="/">
+        <Link
+          className="block px-4 py-2 rounded-md hover:bg-blue-400/30"
+          href="/"
+        >
           Home
         </Link>
-        <Link className="block px-4 py-2 rounded-md hover:bg-blue-400/30" href="/auth">
+        <Link
+          className="block px-4 py-2 rounded-md hover:bg-blue-400/30"
+          href="/auth"
+        >
           Login
         </Link>
       </>
@@ -110,8 +137,11 @@ const Navbar = () => {
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
         <div className="flex h-14 items-center justify-between">
           {/* Brand */}
-          <Link className="text-xl lg:text-2xl font-bold tracking-wide" href="/">
-            Navbar for normal user
+          <Link
+            className="text-xl lg:text-2xl font-bold tracking-wide"
+            href="/"
+          >
+            Random-Pen
           </Link>
 
           {/* Hamburger (ไม่ขยับ/ไม่มีแอนิเมชัน) */}

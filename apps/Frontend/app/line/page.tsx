@@ -23,6 +23,8 @@ const Dashboard: React.FC = () => {
   const [baseOn, setBaseOn] = useState<string>("user"); // user or product or category
   const [categories, setCategories] = useState<Category>(Category.All);
   const [data, setData] = useState<any[]>([]);
+  const [startMonth, setStartMonth] = useState<number>(0);
+  const [endMonth, setEndMonth] = useState<number>(0);
 
   if (isLoading) {
     return <Loader />;
@@ -34,6 +36,14 @@ const Dashboard: React.FC = () => {
     }
     fetchData();
   }, [authToken, role]);
+
+  const handleStartMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStartMonth(parseInt(e.target.value));
+  };
+
+  const handleEndMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setEndMonth(parseInt(e.target.value));
+  };
 
   interface ProductType {
     id?: number;
@@ -150,22 +160,24 @@ const Dashboard: React.FC = () => {
                 <th className="border border-black px-4 py-2">Total Order</th>
               </tr>
             </thead>
-            {data.map((dataa, index) => (
-              <tr key={index} className="border border-black">
-                <td className="border border-black px-4 py-2">
-                  {dataa.Category}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalQuantity}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalPrice}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalOrder}
-                </td>
-              </tr>
-            ))}
+            <tbody>
+              {data.map((dataa, index) => (
+                <tr key={index} className="border border-black">
+                  <td className="border border-black px-4 py-2">
+                    {dataa.Category}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalQuantity}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalPrice}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalOrder}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         )}
 
@@ -181,22 +193,24 @@ const Dashboard: React.FC = () => {
                 <th className="border border-black px-4 py-2">Total Order</th>
               </tr>
             </thead>
-            {data.map((dataa, index) => (
-              <tr key={index} className="border border-black">
-                <td className="border border-black px-4 py-2">
-                  {dataa.Username}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalQuantity}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalPrice}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalOrder}
-                </td>
-              </tr>
-            ))}
+            <tbody>
+              {data.map((dataa, index) => (
+                <tr key={index} className="border border-black">
+                  <td className="border border-black px-4 py-2">
+                    {dataa.Username}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalQuantity}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalPrice}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalOrder}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         )}
 
@@ -212,22 +226,24 @@ const Dashboard: React.FC = () => {
                 <th className="border border-black px-4 py-2">Total Order</th>
               </tr>
             </thead>
-            {data.map((dataa, index) => (
-              <tr key={index} className="border border-black">
-                <td className="border border-black px-4 py-2">
-                  {dataa.Productname}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalQuantity}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalPrice}
-                </td>
-                <td className="border border-black px-4 py-2">
-                  {dataa.TotalOrder}
-                </td>
-              </tr>
-            ))}
+            <tbody>
+              {data.map((dataa, index) => (
+                <tr key={index} className="border border-black">
+                  <td className="border border-black px-4 py-2">
+                    {dataa.Productname}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalQuantity}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalPrice}
+                  </td>
+                  <td className="border border-black px-4 py-2">
+                    {dataa.TotalOrder}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         )}
       </div>

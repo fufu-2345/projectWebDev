@@ -114,5 +114,30 @@ Log::info("User's Role: " . $user->role);
         return $result;
     }
 
+    public function getCategorySummaryByDate($startMonth, $endMonth) //3
+{
+    // กำหนดช่วงเวลาที่ต้องการคำนวณ
+    $startDate = "2025-{$startMonth}-01 00:00:00";
+    $endDate = "2025-{$endMonth}-01 00:00:00";
+
+    $result = DB::table('items')
+        ->join('products', 'items.product_id', '=', 'products.id')
+        ->join('orders', 'items.order_id', '=', 'orders.id')
+        ->select(
+            'products.category as Category',
+            DB::raw('DATE(orders.updated_at) as Date'),
+            DB::raw('SUM(items.quantity) as "TotalQuantity"'),
+            DB::raw('SUM(orders.totalprice) as "TotalPrice"'),
+            DB::raw('COUNT(DISTINCT orders.id) as "TotalOrder"')
+        )
+        ->where('orders.status', 'completed')
+        ->whereBetween('orders.updated_at', [$startDate, $endDate])
+        ->groupBy('products.category', DB::raw('DATE(orders.updated_at)'))
+        ->orderBy('Date')
+        ->get();
+
+    return $result;
+}
+
     ///////
 }

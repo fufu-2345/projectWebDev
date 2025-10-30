@@ -19,7 +19,9 @@ export default function RootLayout({
       <body>
         <AppProvider>
           <Toaster />
-          <Navbar />
+          <nav>
+            <Navbar />
+          </nav>
           {children}
         </AppProvider>
       </body>

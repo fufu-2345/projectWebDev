@@ -17,14 +17,13 @@ type UiStatus = "payment" | "shipping" | "success";
 
 type OrderRow = {
   id: number;
-  datetime?: string | null;   // alias จาก API
+  datetime?: string | null;
   totalprice?: number | null;
-  promotion?: string | null;  // ไม่แสดงผลแล้ว แต่เก็บไว้เผื่อใช้ภายหลัง
+  promotion?: string | null;
   status?: DbStatus | null;
   user_id?: number;
   created_at?: string;
   updated_at?: string;
-
   items?: OrderItem[];
   history?: HistoryRow | null;
 };
@@ -46,9 +45,12 @@ type HistoryRow = {
 };
 
 function normalizeUiStatus(s?: DbStatus | null): UiStatus {
-  const t = String(s || "").toLowerCase().trim();
+  const t = String(s || "")
+    .toLowerCase()
+    .trim();
   if (t === "shipping") return "shipping";
-  if (t === "completed" || t === "complete" || t === "success") return "success";
+  if (t === "completed" || t === "complete" || t === "success")
+    return "success";
   return "payment";
 }
 
@@ -71,14 +73,24 @@ function extractItems(o: OrderRow): OrderItem[] {
   return [];
 }
 
-async function fetchOrderProducts(orderId: number, token: string): Promise<OrderItem[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}/products`, {
-    headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
-    cache: "no-store",
-  });
+async function fetchOrderProducts(
+  orderId: number,
+  token: string
+): Promise<OrderItem[]> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}/products`,
+    {
+      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    }
+  );
   if (!res.ok) return [];
   const data = await res.json();
-  const list: any[] = Array.isArray(data?.items) ? data.items : (Array.isArray(data?.products) ? data.products : []);
+  const list: any[] = Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(data?.products)
+      ? data.products
+      : [];
   return list.map((x: any) => ({
     product_id: Number(x.product_id ?? x.id),
     quantity: Number(x.quantity ?? x.qty ?? 1),
@@ -108,16 +120,25 @@ export default function OrdersPage() {
         setLoading(true);
         setErr(null);
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
-          headers: { Accept: "application/json", Authorization: `Bearer ${authToken}` },
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
           cache: "no-store",
           signal: ac.signal,
         });
         const data = await res.json();
-        if (!res.ok || data?.status === false) throw new Error(data?.message || `HTTP ${res.status}`);
-        const list: OrderRow[] = Array.isArray(data?.orders) ? data.orders : (Array.isArray(data?.data) ? data.data : []);
+        if (!res.ok || data?.status === false)
+          throw new Error(data?.message || `HTTP ${res.status}`);
+        const list: OrderRow[] = Array.isArray(data?.orders)
+          ? data.orders
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
         setOrders(list);
       } catch (e: any) {
-        if (e?.name !== "AbortError") setErr(e?.message || "โหลดข้อมูลไม่สำเร็จ");
+        if (e?.name !== "AbortError")
+          setErr(e?.message || "โหลดข้อมูลไม่สำเร็จ");
       } finally {
         setLoading(false);
       }
@@ -125,32 +146,46 @@ export default function OrdersPage() {
     return () => ac.abort();
   }, [authToken]);
 
-  const visible = useMemo(
-    () => orders.filter((o) => normalizeUiStatus(o.status) === tab),
-    [orders, tab]
-  );
+  // ✅ ปรับเงื่อนไข: แท็บ payment แสดงเฉพาะ status = "wait payment"
+  const visible = useMemo(() => {
+    return orders.filter((o) => {
+      const raw = String(o.status || "")
+        .toLowerCase()
+        .trim();
+      if (tab === "payment") return raw === "wait payment";
+      return normalizeUiStatus(o.status) === tab;
+    });
+  }, [orders, tab]);
 
   async function changeStatus(orderId: number, nextUi: UiStatus) {
     if (!authToken) return;
     const nextDb: DbStatus = nextUi === "success" ? "completed" : nextUi;
 
     const prev = [...orders];
-    setOrders(prev.map((o) => (o.id === orderId ? { ...o, status: nextDb } : o)));
+    setOrders(
+      prev.map((o) => (o.id === orderId ? { ...o, status: nextDb } : o))
+    );
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ status: nextDb }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ status: nextDb }),
+        }
+      );
       const data = await res.json();
-      if (!res.ok || data?.status === false) throw new Error(data?.message || `HTTP ${res.status}`);
+      if (!res.ok || data?.status === false)
+        throw new Error(data?.message || `HTTP ${res.status}`);
       if (data?.order) {
-        setOrders((curr) => curr.map((o) => (o.id === orderId ? data.order : o)));
+        setOrders((curr) =>
+          curr.map((o) => (o.id === orderId ? data.order : o))
+        );
       }
     } catch (e: any) {
       setOrders(prev);
@@ -179,7 +214,8 @@ export default function OrdersPage() {
     const inline = extractItems(o);
     const fromLazy = lazyItems[o.id] || [];
     const items = inline.length > 0 ? inline : fromLazy;
-    if (items.length === 0) return <div className="text-sm text-gray-500">ไม่มีรายการสินค้า</div>;
+    if (items.length === 0)
+      return <div className="text-sm text-gray-500">ไม่มีรายการสินค้า</div>;
     return (
       <ul className="mt-2 space-y-1">
         {items.map((it, idx) => (
@@ -229,7 +265,9 @@ export default function OrdersPage() {
         <button
           onClick={() => setTab("payment")}
           className={`px-4 py-2 rounded-full border ${
-            tab === "payment" ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-800"
+            tab === "payment"
+              ? "bg-gray-900 text-white border-gray-900"
+              : "bg-white text-gray-800"
           }`}
         >
           Payment / รอชำระเงิน
@@ -237,7 +275,9 @@ export default function OrdersPage() {
         <button
           onClick={() => setTab("shipping")}
           className={`px-4 py-2 rounded-full border ${
-            tab === "shipping" ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-800"
+            tab === "shipping"
+              ? "bg-gray-900 text-white border-gray-900"
+              : "bg-white text-gray-800"
           }`}
         >
           Shipping / ระหว่างการจัดส่ง
@@ -245,7 +285,9 @@ export default function OrdersPage() {
         <button
           onClick={() => setTab("success")}
           className={`px-4 py-2 rounded-full border ${
-            tab === "success" ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-800"
+            tab === "success"
+              ? "bg-gray-900 text-white border-gray-900"
+              : "bg-white text-gray-800"
           }`}
         >
           Success / จัดส่งสำเร็จ
@@ -261,7 +303,10 @@ export default function OrdersPage() {
             const uiStatus = normalizeUiStatus(o.status);
             const dt = o.datetime ?? o.created_at;
             return (
-              <div key={o.id} className="border rounded-xl bg-white shadow-sm p-4 flex flex-col gap-3">
+              <div
+                key={o.id}
+                className="border rounded-xl bg-white shadow-sm p-4 flex flex-col gap-3"
+              >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <div className="text-lg font-semibold">ออเดอร์ #{o.id}</div>
@@ -272,7 +317,8 @@ export default function OrdersPage() {
                       </span>
                     </div>
                     <div className="text-sm text-gray-700">
-                      ยอดรวม: <span className="font-bold">{o.totalprice ?? 0}฿</span>
+                      ยอดรวม:{" "}
+                      <span className="font-bold">{o.totalprice ?? 0}฿</span>
                     </div>
                   </div>
 
@@ -282,8 +328,8 @@ export default function OrdersPage() {
                         uiStatus === "payment"
                           ? "bg-yellow-100 text-yellow-800"
                           : uiStatus === "shipping"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-green-100 text-green-800"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-green-100 text-green-800"
                       }`}
                       title={`สถานะ: ${uiStatus}`}
                     >
