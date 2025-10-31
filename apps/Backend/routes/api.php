@@ -12,9 +12,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\CheckRole;
+use App\Http\Controllers\CartController;
 
 // -------- Public (ไม่ต้อง login) --------
 Route::get('/hello', function () {
@@ -54,6 +54,7 @@ Route::get("getProductSummary", [AdminController::class, "getProductSummary"]);
 use App\Http\Controllers\DetailProductController ;
 Route::get('/products/{productId}/detail',[DetailProductController::class,'show']);
 
+
 Route::group([
     "middleware" => ["auth:sanctum"]
 ], function(){
@@ -61,6 +62,8 @@ Route::group([
     Route::get("users", [UserController::class, "showUser"]);
     Route::get('profile', [ProfileController::class, 'show']);
     Route::post('profile', [ProfileController::class, 'update']);
+
+    Route::get("updatePro", [PromotionController::class, "update"]);
 });
 
 // -------- Authenticated (ต้อง login) --------
@@ -115,3 +118,25 @@ Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
 // -------- Product detail by id (public) --------
 
 Route::get('promotions',  [PromotionController::class, 'index']);
+
+
+
+
+
+
+
+Route::middleware(['auth:sanctum'])->group(function() {
+    Route::prefix('cart')->group(function(){
+        Route::get('/', [CartController::class, 'getCart']);
+        Route::post('/add', [CartController::class, 'addToCart']);
+        Route::post('/update', [CartController::class, 'updateQuantity']);
+        Route::post('/delete', [CartController::class, 'deleteItem']);
+        Route::post('/checkout', [CartController::class, 'checkout']);
+        Route::post('/calculate', [CartController::class, 'calculatePromotions']);
+    });
+});
+
+
+
+
+
