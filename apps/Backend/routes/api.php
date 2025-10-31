@@ -44,9 +44,6 @@ Route::group([
     Route::post('profile', [ProfileController::class, 'update']);
 
     Route::get("updatePro", [PromotionController::class, "update"]);
-
-    // Route::apiResource("products", ProductController::class);
-    // Route::get('admin-test', [AdminController::class, 'test']);
 });
 
 
@@ -73,6 +70,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
         Route::post('/update', [CartController::class, 'updateQuantity']);
         Route::post('/delete', [CartController::class, 'deleteItem']);
         Route::post('/checkout', [CartController::class, 'checkout']);
+        Route::post('/calculate', [CartController::class, 'calculatePromotions']);
     });
 });
 

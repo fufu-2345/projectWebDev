@@ -1,16 +1,12 @@
 <?php
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Item;
 use App\Models\Product;
 use App\Models\Promotion;
-use Illuminate\Support\Facades\DB; 
-use Illuminate\Support\Facades\Log; 
 
 class CartController extends Controller {
-
     // Add to cart
     public function addToCart(Request $request) {
         $request->validate([
@@ -19,13 +15,11 @@ class CartController extends Controller {
         ]);
 
         $user = $request->user();
-
         // สร้าง order 
         $order = Order::firstOrCreate(
             ['user_id' => $user->id, 'status' => 'in cart'],
             ['totalprice' => 0]
         );
-
         // check item in cart
         $item = Item::where('order_id', $order->id)
                     ->where('product_id', $request->product_id)
@@ -41,13 +35,11 @@ class CartController extends Controller {
                 'quantity' => $request->quantity,
             ]);
         }
-
         return response()->json([
             'status' => true,
             'message' => 'Item added to cart'
         ]);
     }
-
     // Get cart
     public function getCart(Request $request) {
         $user = $request->user();
@@ -59,7 +51,6 @@ class CartController extends Controller {
 
         return response()->json(['status' => true, 'cart' => $order]);
     }
-
     // Update quantity
     public function updateQuantity(Request $request){
         $request->validate([
@@ -87,7 +78,6 @@ class CartController extends Controller {
 
         return response()->json(['status'=>true,'message'=>'Quantity updated']);
     }
-
     // Delete item
     public function deleteItem(Request $request){
         $request->validate([
@@ -108,7 +98,6 @@ class CartController extends Controller {
         $item->delete();
         return response()->json(['status'=>true,'message'=>'Item deleted']);
     }
-
     // Checkout
     public function checkout(Request $request){
         $user = $request->user();
@@ -191,6 +180,76 @@ class CartController extends Controller {
             'applied_promotions_ids' => $uniquePromotionIds, 
         ]);
     }
+
+    public function calculatePromotions(Request $request) {
+    $user = $request->user();
+
+    $order = Order::with('items.product')
+                ->where('user_id', $user->id)
+                ->where('status','in cart')
+                ->first();
+
+    if (!$order || $order->items->isEmpty()) {
+        return response()->json([
+            'status'=>false,
+            'message'=>'Cart is empty',
+            'totalprice'=>0,
+            'applied_promotions_ids'=>[]
+        ]);
+    }
+
+    $promoBuy2Discount = Promotion::find(1)?->discount ?? 0; 
+    $promoDateDiscount = Promotion::find(2)?->discount ?? 0; 
+    $totalPrice = 0;
+    $today = now();
+    $isSameDayMonth = ($today->day === $today->month);
+    $appliedPromotionIds = []; 
+
+    foreach ($order->items as $item) {
+        $product = $item->product;
+        if (!$product) continue;
+
+        $price = $product->cost;
+        $qty = $item->quantity;
+        $subtotal = $price * $qty;
+
+        // โปรโมชั่นซื้อ 2 ถูกกว่า
+        if ($product->id >= 1 && $product->id <= 5) {
+            $pairs = intdiv($qty, 2);
+            $remainder = $qty % 2;
+            $discountedPrice = $price * (1 - $promoBuy2Discount / 100);
+            $subtotal = ($pairs * 2 * $discountedPrice) + ($remainder * $price);
+            if ($pairs > 0) $appliedPromotionIds[] = 1;
+        }
+
+        // โปรโมชั่นซื้อ 2 แถม 1
+        if ($product->id >= 6 && $product->id <= 8) {
+            $freeItems = intdiv($qty, 3);
+            $payQty = $qty - $freeItems;
+            $subtotal = $payQty * $price;
+            if ($freeItems > 0) $appliedPromotionIds[] = 3;
+        }
+
+        $totalPrice += $subtotal;
+    }
+
+    // โปรโมชั่นวันและเดือนตรงกัน
+    if ($isSameDayMonth) {
+        $totalPrice = $totalPrice * (1 - $promoDateDiscount / 100);
+        $appliedPromotionIds[] = 2; 
+    }
+
+    // ลบซ้ำ
+    $uniquePromotionIds = array_unique($appliedPromotionIds);
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Promotion calculated successfully',
+        'totalprice' => round($totalPrice, 2),
+        'applied_promotions_ids' => $uniquePromotionIds,
+    ]);
+}
+
 
 }
     
