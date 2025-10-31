@@ -19,6 +19,7 @@ class ProductController extends Controller
         if($category){
             $query->where("category", $category);
         }
+        $query->where('stock', '!=', -1000);
 
         $products = $query->get()->map(function($product){
             $product->banner_image = $product->banner_image ? asset("storage/" . $product->banner_image) : null;

@@ -106,24 +106,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 });
 
-// -------- Admin only --------
-Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
-    Log::info("admin");
-    Route::get('admin-test', [AdminController::class, 'test']);
-});
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
 // -------- Product detail by id (public) --------
 
 Route::get('promotions',  [PromotionController::class, 'index']);
-
-
-
-
-
-
 
 Route::middleware(['auth:sanctum'])->group(function() {
     Route::prefix('cart')->group(function(){
