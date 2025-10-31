@@ -77,7 +77,7 @@ Log::info("User's Role: " . $user->role);
         ->whereYear('orders.updated_at', $year)
         ->whereBetween(DB::raw('MONTH(orders.updated_at)'), [$startMonth, $endMonth]);
 
-        if (!empty($category)) {
+        if ($category !== null && $category !== '') {
             $query->where('products.category', $category);
         }
 
@@ -149,7 +149,6 @@ Log::info("User's Role: " . $user->role);
         $startMonth = $request->input('startMonth');
         $endMonth = $request->input('endMonth');
         $year = $request->input('year', date('Y'));
-        $category = $request->input('category', '');
 
         $query = DB::table('items')
             ->join('products', 'items.product_id', '=', 'products.id')
@@ -164,10 +163,6 @@ Log::info("User's Role: " . $user->role);
             ->where('orders.status', 'completed')
             ->whereYear('orders.updated_at', $year)
             ->whereBetween(DB::raw('MONTH(orders.updated_at)'), [$startMonth, $endMonth]);
-
-        if ($category !== '') {
-            $query->where('products.category', $category);
-        }
 
         $result = $query
             ->groupBy('products.title', DB::raw('MONTH(orders.updated_at)'))

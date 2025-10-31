@@ -5,6 +5,7 @@ import { myAppHook } from "@/context/AppProvider";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader";
 import axios from "axios";
+import "./style.css";
 
 import { Line } from "react-chartjs-2";
 import {
@@ -342,9 +343,9 @@ const Dashboard: React.FC = () => {
       <br />
 
       <section>
-        <div className="flex flex-col justify-center items-center space-y-4">
-          <div className="flex items-center">
-            <span className="mr-2">เริ่มเดือน:</span>
+        <div id="startEnd">
+          <div className="month-start">
+            <span className="mr-2">เดือนเริ่มต้น:</span>
             <input
               type="number"
               pattern="\d*"
@@ -355,7 +356,7 @@ const Dashboard: React.FC = () => {
               className="border p-2 rounded-md"
             />
           </div>
-          <div className="flex items-center">
+          <div className="month-end">
             <span className="mr-2">เดือนสิ้นสุด:</span>
             <input
               type="number"
