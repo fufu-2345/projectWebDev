@@ -225,100 +225,33 @@ const Dashboard: React.FC = () => {
   const adminTest = async () => {};
 
   return (
-    <>
+    <main>
       <div className="container mx-auto mt-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <main>
-            <section>
-              {/* Add Product Section */}
-              <div className="card p-4 border border-gray-200 rounded-lg shadow-md">
-                <h4 className="text-xl font-semibold mb-4">
-                  {isEdit ? "Edit" : "Add"} Product
-                </h4>
-                <form onSubmit={handleFormSubmit}>
-                  <input
-                    className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-                    name="title"
-                    placeholder="Title"
-                    pattern=".+"
-                    value={formData.title}
-                    onChange={handleOnChangeEvent}
-                    required
-                  />
-                  <select
-                    className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleOnChangeEvent}
-                    required
-                  >
-                    <option value={""}>All Product</option>
-                    <option value={Category.Pencil}>Pencil</option>
-                    <option value={Category.Eraser}>Eraser</option>
-                    <option value={Category.Ruler}>Ruler</option>
-                    <option value={Category.Pen}>Pen</option>
-                    <option value={Category.Liquid}>Liquid</option>
-                    <option value={Category.Paint}>Paint</option>
-                  </select>
-                  <input
-                    className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-                    name="cost"
-                    placeholder="Cost"
-                    type="number"
-                    value={formData.cost}
-                    pattern="^/d+(\.[0-9]{1,2})?$"
-                    // min="0"
-                    onChange={handleOnChangeEvent}
-                    required
-                  />
-                  <input
-                    className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-                    name="stock"
-                    placeholder="stock"
-                    type="number"
-                    value={formData.stock}
-                    pattern="^/d+$"
-                    // min="0"
-                    onChange={handleOnChangeEvent}
-                    required
-                  />
-                  <div className="mb-2">
-                    {formData.file && (
-                      <Image
-                        src={formData.file}
-                        alt="Preview"
-                        id="bannerPreview"
-                        width={100}
-                        height={100}
-                      />
-                    )}
-                  </div>
-                  <input
-                    className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-                    type="file"
-                    ref={fileRef}
-                    onChange={handleOnChangeEvent}
-                    id="bannerInput"
-                  />
-                  <button
-                    className="w-full bg-blue-500 text-white py-3 rounded-md hover:bg-blue-600"
-                    type="submit"
-                  >
-                    {isEdit ? "Update" : "Add"} Product
-                  </button>
-                </form>
-              </div>
-            </section>
-
-            <section>
-              {/* Product List Section */}
-              <div>
+          <section>
+            {/* Add Product Section */}
+            <div className="card p-4 border border-gray-200 rounded-lg shadow-md">
+              <h4 className="text-xl font-semibold mb-4">
+                {isEdit ? "Edit" : "Add"} Product
+              </h4>
+              <form onSubmit={handleFormSubmit}>
+                <input
+                  className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+                  name="title"
+                  placeholder="Title"
+                  pattern=".+"
+                  value={formData.title}
+                  onChange={handleOnChangeEvent}
+                  required
+                />
                 <select
                   className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
-                  value={categories}
-                  onChange={handleOptionChange}
+                  name="category"
+                  value={formData.category}
+                  onChange={handleOnChangeEvent}
+                  required
                 >
-                  <option value={Category.All}>All Product</option>
+                  <option value={""}>All Product</option>
                   <option value={Category.Pencil}>Pencil</option>
                   <option value={Category.Eraser}>Eraser</option>
                   <option value={Category.Ruler}>Ruler</option>
@@ -326,80 +259,143 @@ const Dashboard: React.FC = () => {
                   <option value={Category.Liquid}>Liquid</option>
                   <option value={Category.Paint}>Paint</option>
                 </select>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full table-auto border-collapse border border-gray-300">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 text-left border-b">ID</th>
-                        <th className="px-4 py-2 text-left border-b">Title</th>
-                        <th className="px-4 py-2 text-left border-b">Banner</th>
-                        <th className="px-4 py-2 text-left border-b">Cost</th>
-                        <th className="px-4 py-2 text-left border-b">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {products.map((singleProduct, index) => (
-                        <tr key={singleProduct.id}>
-                          <td className="px-4 py-2 border-b">
-                            {singleProduct.id}
-                          </td>
-                          <td className="px-4 py-2 border-b">
-                            {singleProduct.title}
-                          </td>
-                          <td className="px-4 py-2 border-b">
-                            {singleProduct.banner_image ? (
-                              <Image
-                                src={singleProduct.banner_image}
-                                alt="Product"
-                                width={50}
-                                height={50}
-                              />
-                            ) : (
-                              "No Image"
-                            )}
-                          </td>
-                          <td className="px-4 py-2 border-b">
-                            ${singleProduct.cost}
-                          </td>
-                          <td className="px-4 py-2 border-b">
-                            <button
-                              className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 mr-2"
-                              onClick={() => {
-                                setFormData({
-                                  id: singleProduct.id,
-                                  category: singleProduct.category,
-                                  cost: singleProduct.cost,
-                                  stock: singleProduct.stock,
-                                  title: singleProduct.title,
-                                  file: singleProduct.banner_image,
-                                });
-                                setIsEdit(true);
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                              onClick={() =>
-                                handleDeleteProduct(singleProduct.id)
-                              }
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <input
+                  className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+                  name="cost"
+                  placeholder="Cost"
+                  type="number"
+                  value={formData.cost}
+                  pattern="^/d+(\.[0-9]{1,2})?$"
+                  // min="0"
+                  onChange={handleOnChangeEvent}
+                  required
+                />
+                <input
+                  className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+                  name="stock"
+                  placeholder="stock"
+                  type="number"
+                  value={formData.stock}
+                  pattern="^/d+$"
+                  // min="0"
+                  onChange={handleOnChangeEvent}
+                  required
+                />
+                <div className="mb-2">
+                  {formData.file && (
+                    <Image
+                      src={formData.file}
+                      alt="Preview"
+                      id="bannerPreview"
+                      width={100}
+                      height={100}
+                    />
+                  )}
                 </div>
+                <input
+                  className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+                  type="file"
+                  ref={fileRef}
+                  onChange={handleOnChangeEvent}
+                  id="bannerInput"
+                />
+                <button
+                  className="w-full bg-blue-500 text-white py-3 rounded-md hover:bg-blue-600"
+                  type="submit"
+                >
+                  {isEdit ? "Update" : "Add"} Product
+                </button>
+              </form>
+            </div>
+          </section>
+
+          <section>
+            {/* Product List Section */}
+            <div>
+              <select
+                className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
+                value={categories}
+                onChange={handleOptionChange}
+              >
+                <option value={Category.All}>All Product</option>
+                <option value={Category.Pencil}>Pencil</option>
+                <option value={Category.Eraser}>Eraser</option>
+                <option value={Category.Ruler}>Ruler</option>
+                <option value={Category.Pen}>Pen</option>
+                <option value={Category.Liquid}>Liquid</option>
+                <option value={Category.Paint}>Paint</option>
+              </select>
+              <div className="overflow-x-auto">
+                <table className="min-w-full table-auto border-collapse border border-gray-300">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-2 text-left border-b">ID</th>
+                      <th className="px-4 py-2 text-left border-b">Title</th>
+                      <th className="px-4 py-2 text-left border-b">Banner</th>
+                      <th className="px-4 py-2 text-left border-b">Cost</th>
+                      <th className="px-4 py-2 text-left border-b">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((singleProduct, index) => (
+                      <tr key={singleProduct.id}>
+                        <td className="px-4 py-2 border-b">
+                          {singleProduct.id}
+                        </td>
+                        <td className="px-4 py-2 border-b">
+                          {singleProduct.title}
+                        </td>
+                        <td className="px-4 py-2 border-b">
+                          {singleProduct.banner_image ? (
+                            <Image
+                              src={singleProduct.banner_image}
+                              alt="Product"
+                              width={50}
+                              height={50}
+                            />
+                          ) : (
+                            "No Image"
+                          )}
+                        </td>
+                        <td className="px-4 py-2 border-b">
+                          ${singleProduct.cost}
+                        </td>
+                        <td className="px-4 py-2 border-b">
+                          <button
+                            className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 mr-2"
+                            onClick={() => {
+                              setFormData({
+                                id: singleProduct.id,
+                                category: singleProduct.category,
+                                cost: singleProduct.cost,
+                                stock: singleProduct.stock,
+                                title: singleProduct.title,
+                                file: singleProduct.banner_image,
+                              });
+                              setIsEdit(true);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                            onClick={() =>
+                              handleDeleteProduct(singleProduct.id)
+                            }
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </section>
-          </main>
+            </div>
+          </section>
         </div>
       </div>
-    </>
+    </main>
   );
 };
 

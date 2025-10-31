@@ -28,8 +28,8 @@ interface AppProviderType {
 }
 
 const AppContext = createContext<AppProviderType | undefined>(undefined);
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`; // e.g. http://127.0.0.1:8000/api
-const ME_ENDPOINT = `${API_URL}/me`; // ✅ ใช้ endpoint เดียวชัดเจน
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
+const ME_ENDPOINT = `${API_URL}/me`;
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -37,7 +37,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<string | null>(null);
   const router = useRouter();
 
-  // แนบ Authorization ให้ axios อัตโนมัติเมื่อมี token
   useEffect(() => {
     const token = Cookies.get("authToken");
     if (token) {
@@ -48,7 +47,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [authToken]);
 
-  // โหลดสถานะเริ่มต้นจาก cookie แล้วตรวจผู้ใช้ผ่าน /me
   useEffect(() => {
     const token = Cookies.get("authToken") || null;
     const cookieRole = (Cookies.get("role") || "").toLowerCase();
@@ -61,7 +59,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     setAuthToken(token);
 
-    // ใช้ role จาก cookie ชั่วคราวเพื่อ UX ลื่นขึ้น
     if (cookieRole === Role.Admin || cookieRole === Role.User) {
       setRole(cookieRole as Role);
     }
@@ -70,7 +67,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const res = await axios.get(ME_ENDPOINT, {
           headers: { Authorization: `Bearer ${token}` },
-          validateStatus: () => true, // เราจะตัดสินใจเอง
+          validateStatus: () => true,
         });
 
         if (res.status === 200 && res.data) {
@@ -84,7 +81,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         if (res.status === 401) {
-          // token หมดอายุ/ไม่ถูกต้อง → ล้างแล้วไป login
           Cookies.remove("authToken");
           Cookies.remove("role");
           setAuthToken(null);
@@ -93,15 +89,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           router.push("/auth");
           return;
         }
-
-        // กรณี /me ไม่เปิดใช้งาน (404/5xx) — ไม่ดีดผู้ใช้ออก แต่หยุด loading
         setIsLoading(false);
       } catch {
-        // network error → ไม่ดีดผู้ใช้ออกเช่นกัน
         setIsLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   const fetchSession = async () => {
@@ -110,7 +102,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         withCredentials: true,
       });
       setRole(response.data.role);
-      console.log("role", response.data.role);
     } catch (error) {
       console.error("Failed to fetch session", error);
     }
@@ -195,7 +186,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const value = useMemo<AppProviderType>(
     () => ({ login, register, isLoading, authToken, role, logout }),
-    [isLoading, authToken, role] // eslint-disable-line react-hooks/exhaustive-deps
+    [isLoading, authToken, role]
   );
 
   return (
