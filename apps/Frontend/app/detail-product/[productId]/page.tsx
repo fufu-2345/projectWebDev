@@ -35,8 +35,6 @@ const Page: React.FC<Props> = ({ params }) => {
           `http://localhost:8000/api/products/${productId}/detail`
         );
         const data = await res.json();
-        console.log("Fetched product:", data);
-        // setProduct แบบตรงๆ ไม่เช็ค status เผื่อ backend ไม่มี status
         setProduct(data.product || null);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -118,7 +116,7 @@ const Page: React.FC<Props> = ({ params }) => {
             <div className="md:w-1/2 flex justify-center items-center">
               {product.banner_image ? (
                 <img
-                  src={`${product.banner_image}`} // ✅ เผื่อ backend ส่ง path
+                  src={`${product.banner_image}`}
                   alt={product.title}
                   className="rounded-lg max-h-96 object-contain"
                 />

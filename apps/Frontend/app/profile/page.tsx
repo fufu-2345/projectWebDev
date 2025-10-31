@@ -33,7 +33,6 @@ export default function Page() {
           },
         });
         const data = await res.json();
-        console.log(data);
         setUser(data.user);
         setForm({
           name: data.user.name || "",
@@ -56,10 +55,11 @@ export default function Page() {
     if (!authToken) return toast.error("Please login first");
 
     const test = /.*/;
+    const test2 = /^(\d{10})$|^(\d{3}-\d{3}-\d{4})$ุ/;
     if (
       test.test(form.name) &&
       test.test(form.address) &&
-      test.test(form.phone) &&
+      test2.test(form.phone) &&
       test.test(form.birthday)
     ) {
       const formData = new FormData();
@@ -193,7 +193,7 @@ export default function Page() {
               type="text"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              pattern=".*"
+              pattern="^(\d{10})$|^(\d{3}-\d{3}-\d{4})$ุ"
               placeholder="Phone Number"
               className="border p-2 w-full rounded focus:ring-2 focus:ring-blue-300 outline-none"
             />

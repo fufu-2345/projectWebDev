@@ -1,4 +1,3 @@
-// apps/Frontend/context/AppProvider.tsx
 "use client";
 
 import Loader from "@/components/Loader";

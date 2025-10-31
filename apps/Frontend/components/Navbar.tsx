@@ -18,7 +18,6 @@ const Navbar = () => {
 
   const isAdmin = String(role || "").toLowerCase() !== "user";
 
-  // ลิงก์เวอร์ชัน Desktop (hover เป็นฟ้าอ่อน)
   const DesktopLinks = () =>
     authToken ? (
       <>
@@ -29,7 +28,6 @@ const Navbar = () => {
           Home
         </Link>
 
-        {/* Dashboard — เฉพาะแอดมิน */}
         {isAdmin && (
           <Link
             className="px-3 py-2 rounded-lg text-white hover:bg-blue-500/40 transition-colors"
@@ -75,7 +73,6 @@ const Navbar = () => {
       </>
     );
 
-  // ลิงก์เวอร์ชัน Mobile (Logout เต็มความกว้าง)
   const MobileLinks = () =>
     authToken ? (
       <>
@@ -86,7 +83,6 @@ const Navbar = () => {
           Home
         </Link>
 
-        {/* Dashboard — เฉพาะแอดมิน */}
         {isAdmin && (
           <Link
             className="block px-4 py-2 rounded-md hover:bg-blue-400/30"
@@ -136,7 +132,6 @@ const Navbar = () => {
     <nav className="bg-blue-600 text-white shadow">
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
         <div className="flex h-14 items-center justify-between">
-          {/* Brand */}
           <Link
             className="text-xl lg:text-2xl font-bold tracking-wide"
             href="/"
@@ -144,7 +139,6 @@ const Navbar = () => {
             Random-Pen
           </Link>
 
-          {/* Hamburger (ไม่ขยับ/ไม่มีแอนิเมชัน) */}
           <button
             type="button"
             className="lg:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600"
@@ -159,14 +153,12 @@ const Navbar = () => {
             </div>
           </button>
 
-          {/* Desktop links */}
           <div className="hidden lg:flex lg:items-center lg:space-x-1">
             <DesktopLinks />
           </div>
         </div>
       </div>
 
-      {/* Mobile dropdown */}
       <div
         className={`lg:hidden overflow-hidden transition-all duration-300 ${
           open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"

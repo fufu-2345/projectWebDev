@@ -56,7 +56,6 @@ const Dashboard: React.FC = () => {
     if (!authToken || role === "user") {
       router.back();
     }
-    console.log(baseOn);
     fetchData();
   }, [authToken, role, categories]);
 
@@ -70,7 +69,6 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (startMonth && endMonth) {
-      console.log(baseOn);
       fetchData();
     }
   }, [startMonth, endMonth]);
@@ -88,7 +86,6 @@ const Dashboard: React.FC = () => {
   // List all products
   const fetchData = async () => {
     try {
-      console.log(baseOn);
       let type = "";
       if (baseOn === "user") {
         type = "getUserOrderSummary";
@@ -127,7 +124,6 @@ const Dashboard: React.FC = () => {
   const handleCategoryChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    console.log(event.target.value);
     setBaseOn(event.target.value);
     try {
       let type = "";

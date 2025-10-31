@@ -29,7 +29,6 @@ const Page: React.FC = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 โหลดข้อมูล cart
   const fetchCart = async () => {
     if (!authToken) return;
     try {
@@ -112,7 +111,6 @@ const Page: React.FC = () => {
         },
       });
       const data = await res.json();
-      console.log("Checkout result:", data);
 
       if (data.status) {
         toast.success("Order placed successfully! Total: $" + data.totalprice);

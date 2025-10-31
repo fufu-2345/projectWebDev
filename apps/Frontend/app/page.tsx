@@ -22,7 +22,6 @@ const categories: Category[] = [
   { id: "liquid", name: "ลิควิด" },
 ];
 
-// รูปจาก public/img-cate
 const FILES: Record<string, string | null> = {
   pen: "pen.jpg",
   pencil: "pensil.jpg",
@@ -32,14 +31,13 @@ const FILES: Record<string, string | null> = {
   liquid: "liquid.jpg",
 };
 
-const API = process.env.NEXT_PUBLIC_API_URL || ""; // e.g. http://localhost:8000/api
+const API = process.env.NEXT_PUBLIC_API_URL || "";
 
 function localImg(cateId: string) {
   const f = FILES[cateId];
   return f ? `/img-cate/${f}` : null;
 }
 
-// ข้อความโปรโมชันตาม id
 function promoLabel(p: Promotion, percent: number) {
   if (p.id === 1) return `โปรโมชั่น ซื้อ 2 รับส่วนลด ${percent}%`;
   if (p.id === 2) return `โปรโมชั่นเลขวันตรงกับเดือน รับส่วนลด ${percent}%`;
@@ -90,7 +88,6 @@ export default function CatePage() {
   return (
     <>
       <header>
-        {/* PROMOTION — แสดงเสมอ (แม้ยังไม่ล็อกอิน) ยกเว้นเป็น admin */}
         {!isAdmin && (
           <section className="w-full">
             <div className="grid grid-cols-1 sm:grid-cols-3">
@@ -105,11 +102,9 @@ export default function CatePage() {
                   {promoErr}
                 </div>
               ) : (
-                // ให้มี 3 ช่องเสมอ
                 Array.from({ length: 3 }).map((_, idx) => {
                   const p = promos[idx];
 
-                  // ถ้าไม่มีข้อมูลโปรโมชัน → ช่องเทา PROMOTION
                   if (!p) {
                     return (
                       <div
@@ -128,7 +123,6 @@ export default function CatePage() {
                       ? Math.round(Number(p.discount))
                       : 0;
 
-                  // พื้นหลัง: id=1 และ id=3 ใช้โทนเหลืองเหมือนกัน
                   const bgClass =
                     p.id === 1 || p.id === 3
                       ? "bg-gradient-to-br from-yellow-100 to-yellow-300"
@@ -149,7 +143,6 @@ export default function CatePage() {
         )}
       </header>
 
-      {/* CATEGORIES */}
       <main className="mx-auto px-4 py-4">
         <h1 className="text-2xl font-semibold mb-8">เลือกประเภทสินค้า</h1>
 

@@ -54,13 +54,12 @@ const Dashboard: React.FC = () => {
       router.push("/auth");
       return;
     }
-    //console.log(role);
     fetchAllProducts();
   }, [authToken]);
 
   const handleOnChangeEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      // upload file
+      // have file
       setFormData({
         ...formData,
         banner_image: event.target.files[0],
@@ -100,7 +99,6 @@ const Dashboard: React.FC = () => {
         if (response.data.status) {
           fetchAllProducts();
           toast.success("Product Update successfully");
-          //toast.success(response.data.message);
           setFormData({
             title: "",
             category: Category.Pencil,
@@ -129,7 +127,6 @@ const Dashboard: React.FC = () => {
         if (response.data.status) {
           fetchAllProducts();
           toast.success("Product Created successfully");
-          //toast.success(response.data.message);
           setFormData({
             title: "",
             category: Category.Pencil,
@@ -187,7 +184,6 @@ const Dashboard: React.FC = () => {
             }
           );
           if (response.data.status) {
-            //toast.success(response.data.message);
             Swal.fire({
               title: "Deleted!",
               text: "Your file has been deleted.",

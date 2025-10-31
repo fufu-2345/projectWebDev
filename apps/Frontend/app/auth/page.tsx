@@ -82,7 +82,6 @@ const Auth: React.FC = () => {
                 name="name"
                 type="text"
                 value={formData.name}
-                pattern=".+@.{2,}"
                 onChange={handleOnChangeInput}
                 placeholder="Name"
                 required
@@ -93,7 +92,7 @@ const Auth: React.FC = () => {
               name="email"
               type="email"
               value={formData.email}
-              pattern=".{1,}"
+              pattern=".+@.{2,}"
               onChange={handleOnChangeInput}
               placeholder="Email"
               required
@@ -102,6 +101,7 @@ const Auth: React.FC = () => {
               className="form-input mb-4 p-3 w-full border border-gray-300 rounded-md"
               name="password"
               type="password"
+              pattern=".{1,}"
               value={formData.password}
               onChange={handleOnChangeInput}
               placeholder="Password"

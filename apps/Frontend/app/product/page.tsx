@@ -14,28 +14,28 @@ type ProductView = {
   category: string;
 };
 
-const API = process.env.NEXT_PUBLIC_API_URL; // e.g. http://127.0.0.1:8000/api
+const API = process.env.NEXT_PUBLIC_API_URL;
 const DETAIL_BASE = "/detail-product";
 
-// ===== helper: แปลง path -> URL เต็ม =====
 const ORIGIN =
   (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/?$/, "") || "";
 
 function toAbsoluteUrl(path?: string | null): string | null {
   if (!path) return null;
-  if (/^https?:\/\//i.test(path)) return path;          // เป็น URL เต็มแล้ว
-  if (path.startsWith("/")) return `${ORIGIN}${path}`;   // /storage/...
-  return `${ORIGIN}/${path}`;                            // storage/...
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith("/")) return `${ORIGIN}${path}`;
+  return `${ORIGIN}/${path}`;
 }
 
-// ===== helper: เรียงรายการตามตัวเลือก =====
 type SortKey = "name-asc" | "name-desc" | "price-asc" | "price-desc";
 function sortItems(items: ProductView[], key: SortKey): ProductView[] {
   const arr = [...items];
   switch (key) {
     case "name-asc":
       arr.sort((a, b) =>
-        (a.name || "").localeCompare(b.name || "", ["en", "th"], { sensitivity: "base" })
+        (a.name || "").localeCompare(b.name || "", ["en", "th"], {
+          sensitivity: "base",
+        })
       );
       break;
     case "price-asc":
@@ -55,9 +55,8 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [items, setItems] = useState<ProductView[]>([]);
-  const token = Cookies.get("authToken"); // ได้จาก AppProvider ตอน login (ถ้ามี)
+  const token = Cookies.get("authToken");
 
-  // UI state สำหรับเรียง/กรอง
   const [sortKey, setSortKey] = useState<SortKey>("name-asc");
   const [onlyAvailable, setOnlyAvailable] = useState<boolean>(true);
 
@@ -80,7 +79,11 @@ export default function ProductPage() {
         const headers: Record<string, string> = { Accept: "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const res = await fetch(url, { signal: ac.signal, cache: "no-store", headers });
+        const res = await fetch(url, {
+          signal: ac.signal,
+          cache: "no-store",
+          headers,
+        });
         if (!res.ok) {
           const txt = await res.text();
           throw new Error(`HTTP ${res.status} ${txt || ""}`.trim());
@@ -88,15 +91,16 @@ export default function ProductPage() {
 
         const json = await res.json();
 
-        // ใช้ file เป็นหลัก , fallback -> banner_image -> image
-        const list: ProductView[] = (json.products || json.data || []).map((p: any) => ({
-          id: p.id,
-          name: p.title ?? p.name,
-          image: toAbsoluteUrl(p.file ?? p.banner_image ?? p.image ?? null),
-          price: Number(p.cost ?? p.price ?? 0),
-          amount: Number(p.stock ?? p.amount ?? 0),
-          category: p.category,
-        }));
+        const list: ProductView[] = (json.products || json.data || []).map(
+          (p: any) => ({
+            id: p.id,
+            name: p.title ?? p.name,
+            image: toAbsoluteUrl(p.file ?? p.banner_image ?? p.image ?? null),
+            price: Number(p.cost ?? p.price ?? 0),
+            amount: Number(p.stock ?? p.amount ?? 0),
+            category: p.category,
+          })
+        );
         setItems(list);
       } catch (e: any) {
         const msg = String(e?.message || "");
@@ -110,9 +114,11 @@ export default function ProductPage() {
     return () => ac.abort();
   }, [cate, token]);
 
-  // ประมวลผลกรอง + เรียง
+  // กรอง + เรียง
   const visibleItems = useMemo(() => {
-    const filtered = onlyAvailable ? items.filter((it) => (it.amount ?? 0) > 0) : items;
+    const filtered = onlyAvailable
+      ? items.filter((it) => (it.amount ?? 0) > 0)
+      : items;
     return sortItems(filtered, sortKey);
   }, [items, onlyAvailable, sortKey]);
 
@@ -135,48 +141,52 @@ export default function ProductPage() {
       <div className="mx-auto max-w-[1200px]">
         {/* Header + Controls */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-6">
-      <div className="flex items-baseline gap-3">
-        <h1 className="text-xl sm:text-2xl font-semibold">ประเภท: {cate}</h1>
-        {/* แสดงจำนวนผล หลังกรอง/เรียง (ซ่อนระหว่างโหลด/มี error) */}
-        {!loading && !err && (
-          <span className="text-sm text-gray-600">
-            แสดง {visibleItems.length} รายการ{onlyAvailable ? " (เฉพาะที่มีของ)" : ""}
-          </span>
-        )}
-      </div>
+          <div className="flex items-baseline gap-3">
+            <h1 className="text-xl sm:text-2xl font-semibold">
+              ประเภท: {cate}
+            </h1>
+            {/* แสดงจำนวนผล หลังกรอง/เรียง (ซ่อนระหว่างโหลด/มี error) */}
+            {!loading && !err && (
+              <span className="text-sm text-gray-600">
+                แสดง {visibleItems.length} รายการ
+                {onlyAvailable ? " (เฉพาะที่มีของ)" : ""}
+              </span>
+            )}
+          </div>
 
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="inline-flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="size-4 accent-gray-700"
-            checked={onlyAvailable}
-            onChange={(e) => setOnlyAvailable(e.target.checked)}
-          />
-          เฉพาะสินค้าที่มีของ
-        </label>
+          {/* Controls */}
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="size-4 accent-gray-700"
+                checked={onlyAvailable}
+                onChange={(e) => setOnlyAvailable(e.target.checked)}
+              />
+              เฉพาะสินค้าที่มีของ
+            </label>
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">เรียงโดย:</span>
-          <select
-            className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm"
-            value={sortKey}
-            onChange={(e) => setSortKey(e.target.value as SortKey)}
-          >
-            <option value="name-asc">ชื่อ (A–Z / ก–ฮ)</option>
-            <option value="price-asc">ราคาต่ำ → สูง</option>
-            <option value="price-desc">ราคาสูง → ต่ำ</option>
-          </select>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">เรียงโดย:</span>
+              <select
+                className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm"
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value as SortKey)}
+              >
+                <option value="name-asc">ชื่อ (A–Z / ก–ฮ)</option>
+                <option value="price-asc">ราคาต่ำ → สูง</option>
+                <option value="price-desc">ราคาสูง → ต่ำ</option>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
         {loading && <div className="text-gray-700">กำลังโหลด...</div>}
-        {!loading && err && <div className="text-red-600">เกิดข้อผิดพลาด: {err}</div>}
+        {!loading && err && (
+          <div className="text-red-600">เกิดข้อผิดพลาด: {err}</div>
+        )}
 
         {!loading && !err && (
-          // ขอบนอก (mobile-first → ขยาย padding/ระยะที่ sm)
           <div className="bg-white rounded-[32px] shadow border-2 border-gray-400 bg-gray-200 p-3 sm:p-4 md:p-5">
             {/* กล่องใน (scroll ภายใน) */}
             <div
@@ -186,17 +196,14 @@ export default function ProductPage() {
                 border-[3px] border-gray-200
               "
             >
-              {/* กริดสินค้า: 2 → (≥640) 3 → (≥768) 4 คอลัมน์ */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
                 {visibleItems.map((p) => (
                   <Link
                     key={p.id}
-                    // ✅ ลิงก์ให้ตรง: /detail-product/[productId]
                     href={`${DETAIL_BASE}/${p.id}?cate=${encodeURIComponent(p.category)}`}
                     className="group block rounded-[22px] border border-gray-400 overflow-hidden hover:shadow-sm transition focus:outline-none focus:ring-2 focus:ring-gray-300"
                     aria-label={`ดูรายละเอียด ${p.name}`}
                   >
-                    {/* ครึ่งบน: รูป */}
                     <div className="relative bg-white aspect-[1.25] overflow-hidden grid place-items-center">
                       {p.image ? (
                         <img
@@ -220,7 +227,9 @@ export default function ProductPage() {
                       </div>
                       <div className="text-sm sm:text-base text-gray-700 mt-1">
                         คงเหลือ{" "}
-                        <span className="font-medium text-gray-900">{p.amount}</span>
+                        <span className="font-medium text-gray-900">
+                          {p.amount}
+                        </span>
                       </div>
                       <div className="text-sm sm:text-base text-gray-700">
                         ราคา{" "}

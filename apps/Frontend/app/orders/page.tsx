@@ -1,4 +1,3 @@
-// apps/Frontend/app/orders/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -147,7 +146,6 @@ export default function OrdersPage() {
     return () => ac.abort();
   }, [authToken]);
 
-  // ✅ ปรับเงื่อนไข: แท็บ payment แสดงเฉพาะ status = "wait payment"
   const visible = useMemo(() => {
     return orders.filter((o) => {
       const raw = String(o.status || "")
