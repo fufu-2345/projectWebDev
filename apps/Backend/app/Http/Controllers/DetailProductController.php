@@ -7,8 +7,8 @@
 
     class DetailProductController extends Controller{
         public function show($productId){
-            $product = Product::findOrFail($productId) ;
-            $items = Item::where('product_id',$productId)->where('stock', '!=', -1000) ->with('order')->get();
+            $product = Product::where('id', $productId)->where('stock', '!=', -1000)->firstOrFail();
+            $items = Item::where('product_id',$productId)->with('order')->get();
             $product->banner_image = $product->banner_image ? asset("storage/" . $product->banner_image):null;
             return response()->json([
                 'statys' => true,
