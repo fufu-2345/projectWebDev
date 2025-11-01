@@ -4,7 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "start": "turbo run dev",
-    "postinstall": "cd apps/Backend && composer install",
+    "postinstall": "cd apps/Backend && curl -sS https://getcomposer.org/installer | php && php composer.phar install",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
