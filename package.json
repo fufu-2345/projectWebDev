@@ -4,7 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "start": "turbo run dev",
-    "installl": "pnpm install && cd apps/Backend && composer install",
+    "postinstall": "cd apps/Backend && composer install",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
